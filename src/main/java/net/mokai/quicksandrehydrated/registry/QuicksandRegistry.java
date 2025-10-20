@@ -36,6 +36,20 @@ public class QuicksandRegistry {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, QuicksandRehydrated.MOD_ID);
 
+    /**
+     *  ----- HOW TO ADD NEW SUBSTANCES ----
+     *
+     *  1. Assemble the Blockmodel.
+     *    - Within the [resources/assets/qsrehydrated] folder, look at [blockstates] and [models/block] for examples of how to make a Blockmodel.
+     *    - the resulting blockstate.json should have the 'canonical name', or the name Forge will look for when finding a Blockmodel.
+     *  2. Create the RegistryObject<Block>.
+     *    - This is the object that is fed to Forge in order to register the block.
+     *    - Examples around Line 180. Feel free to copypaste one and rename the RegistryObject and string (the canonical name).
+     *    -    public static final RegistryObject<Block> SAMPLE_QUICKSAND = registerBlock("sample_quicksand_canonical_name", () -> new QuicksandBase());
+     *    - Instantiate a new QuicksandBase or relevant quicksand type, and include a BlockBehavior.Properties and a QuicksandBehavior.
+     *
+     *
+     */
     // --------------------------------- Block properties -----------------------------
 
 
@@ -96,9 +110,11 @@ public class QuicksandRegistry {
 
 
 
+
     // ----------------------------------- QUICKSAND REGISTRY :O :O :O -----------------------------
 
-    //TODO: When making new substances, make sure to include them in resources/data/qsrehydrated/tags/blocks/quicksand_drownable.json
+    //When making new substances, make sure to include the new substance in resources/data/qsrehydrated/tags/blocks/quicksand_drownable.json.
+
 
 
     public static final RegistryObject<Block> QUICKSAND = registerBlock("quicksand", () -> new Quicksand( baseBlockBehavior.randomTicks(), new QuicksandBehavior()
@@ -175,7 +191,6 @@ public class QuicksandRegistry {
             .setBuoyancyPoint(BodyDepthThreshold.ABDOMEN.depth) // Valore di buoyancy per le ginocchia (ridotto da SHOULDERS)
             .setResurfingForce(0.04) // Higher resurfing force for soft quicksand
     ));
-
 
     public static final RegistryObject<Block> WHITE_QUICKRUG = registerBlock("white_quickrug", () -> new Quickrug( woolBlockBehavior.mapColor(MapColor.SNOW), quickrugSinkable));
     public static final RegistryObject<Block> ORANGE_QUICKRUG = registerBlock("orange_quickrug", () -> new Quickrug( woolBlockBehavior.mapColor(MapColor.COLOR_ORANGE), quickrugSinkable));

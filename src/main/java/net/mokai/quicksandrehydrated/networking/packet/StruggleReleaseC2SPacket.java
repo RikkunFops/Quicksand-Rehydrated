@@ -29,7 +29,7 @@ public class StruggleReleaseC2SPacket {
 
             playerStruggling strugglingPlayer = (playerStruggling) player;
 
-            strugglingPlayer.attemptStruggle();
+            strugglingPlayer.BeginStruggle();
             strugglingPlayer.setHoldingStruggle(false);
 
         });

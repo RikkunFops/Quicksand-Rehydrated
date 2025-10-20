@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 import net.mokai.quicksandrehydrated.block.quicksands.core.QuicksandBase;
 import net.mokai.quicksandrehydrated.entity.coverage.CoverageSerializer;
 import net.mokai.quicksandrehydrated.entity.coverage.PlayerCoverage;
@@ -32,19 +31,11 @@ public class PlayerMixin implements playerStruggling {
     private static final UUID GRAVITY_MODIFIER_QUICKSAND_UUID = UUID.fromString("b8c5b4f6-8188-4466-8239-53c567b11b32");
     private static final AttributeModifier GRAVITY_MODIFIER_QUICKSAND = new AttributeModifier(GRAVITY_MODIFIER_QUICKSAND_UUID, "Quicksand Gravity Cancel", (double)-1.0F, AttributeModifier.Operation.MULTIPLY_BASE);
 
-    int struggleHold = 0;
-    boolean holdingStruggle = false;
 
     public PlayerCoverage coverage = new PlayerCoverage();
-
     public PlayerCoverage getCoverage() {
         return this.coverage;
     }
-
-
-
-
-
     String coverageTexture = "textures/entity/coverage/quicksand_coverage.png";
 
     public String getCoverageTexture() {return coverageTexture;}
@@ -52,62 +43,62 @@ public class PlayerMixin implements playerStruggling {
 
 
 
+    int struggleHold = 0;
+    int struggleMax = 20;
+    boolean holdingStruggle = false;
 
-
-    @Override
     public boolean getHoldingStruggle() {return this.holdingStruggle;}
-
-    @Override
     public void setHoldingStruggle(boolean set) {this.holdingStruggle = set;}
 
-    @Override
     public int getStruggleHold() {
         return this.struggleHold;
     }
-    @Override
     public void setStruggleHold(int set) {
         this.struggleHold = set;
     }
-    @Override
+
     public void addStruggleHold(int add) {
-        this.struggleHold = this.struggleHold + add;
+        this.struggleHold = Math.min(this.struggleHold + add, 20);
     }
 
     @Override
-    public void attemptStruggle() {
+    public void BeginStruggle() {
+        if (!holdingStruggle) {
+            setHoldingStruggle(true);
 
-        Player player = (Player)(Object) this;
-        entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar) player;
-        playerStruggling strugglingPlayer = (playerStruggling) player;
-        System.out.println("attemptStruggle()");
+            System.out.println("Begin struggle");
 
-        if (QuicksandVarEntity.getInQuicksand()) {
+            Player player = (Player) (Object) this;
+            entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar) player;
+            playerStruggling strugglingPlayer = (playerStruggling) player;
 
-            // find the block the player is stuck in
-            BlockPos bp = QuicksandVarEntity.getStuckBlock(player);
+            if (QuicksandVarEntity.getInQuicksand()) {
 
-            if (bp != null && QuicksandVarEntity.stuckBlockValid(bp, player)) {
+                // find the block the player is stuck in
+                BlockPos bp = QuicksandVarEntity.getStuckBlock(player);
 
-                // can only do things if it exists, of course.
+                if (bp != null && QuicksandVarEntity.stuckBlockValid(bp, player)) {
 
-                Level eLevel = player.level();
-                BlockState bs = eLevel.getBlockState(bp);
+                    // can only do things if it exists, of course.
 
-                int ticks = strugglingPlayer.getStruggleHold();
+                    Level eLevel = player.level();
+                    BlockState bs = eLevel.getBlockState(bp);
 
-                // TODO; right now this has a hard coded value of 20.
-                // Ideally there should be a way to determine what the max is per quicksand
-                double struggleAmount = ticks / 20.0;
+                    int ticks = strugglingPlayer.getStruggleHold();
 
-                QuicksandBase qs = (QuicksandBase) bs.getBlock();
-                qs.struggleAttempt(bs, player, struggleAmount);
+                    // TODO; right now this has a hard coded value of 20.
+                    // Ideally there should be a way to determine what the max is per quicksand
+                    double struggleAmount = ticks / 20.0;
+
+                    QuicksandBase qs = (QuicksandBase) bs.getBlock();
+                    qs.struggleAttempt(bs, player, struggleAmount);
+
+                }
 
             }
 
+            strugglingPlayer.setStruggleHold(0);
         }
-
-        strugglingPlayer.setStruggleHold(0);
-
     }
 
     public Vec3 velPosition0 = new Vec3(0, 0, 0);
@@ -177,7 +168,6 @@ public class PlayerMixin implements playerStruggling {
     {
 
         Player player = (Player)(Object) this;
-        //System.out.println("tickStruggleCooldown(CallbackInfo ci)");
         this.velPosition1 = this.velPosition0; // 1 = previous
         this.velPosition0 = player.position(); // 0 = "current"
 
@@ -231,16 +221,11 @@ public class PlayerMixin implements playerStruggling {
         // both server AND client
         if (strugglingPlayer.getHoldingStruggle()) {
             addStruggleHold(1);
-        }
-        else if (strugglingPlayer.getStruggleHold() > 0) {
-            strugglingPlayer.attemptStruggle();
+        } else if (strugglingPlayer.getStruggleHold() > 0) {
+            strugglingPlayer.BeginStruggle();
         }
 
     }
-
-
-
-
 
 
 

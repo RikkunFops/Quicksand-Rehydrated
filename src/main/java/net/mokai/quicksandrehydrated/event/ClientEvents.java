@@ -18,7 +18,6 @@ import net.mokai.quicksandrehydrated.client.render.coverage.PlayerCoverageDefaul
 import net.mokai.quicksandrehydrated.client.render.coverage.PlayerCoverageSlimModel;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
 import net.mokai.quicksandrehydrated.particle.QuicksandBubbleParticle;
-import net.mokai.quicksandrehydrated.particle.WashingParticle;
 import net.mokai.quicksandrehydrated.registry.ModModelLayers;
 import net.mokai.quicksandrehydrated.registry.ModParticles;
 import net.mokai.quicksandrehydrated.util.Keybinding;
@@ -30,12 +29,12 @@ public class ClientEvents {
     public static class ClientForgeEvents {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
-            if (Keybinding.STRUGGLE_KEY.consumeClick()) {
-                // cast to playerStruggling interface
-                ((playerStruggling) Minecraft.getInstance().player).attemptStruggle();
+            if (Keybinding.STRUGGLE_KEY.isDown()) {
+                ((playerStruggling) Minecraft.getInstance().player).BeginStruggle();
+            } else {
+                System.out.println("Struggle key not held");
             }
         }
-
     }
 
     @Mod.EventBusSubscriber(modid = QuicksandRehydrated.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
