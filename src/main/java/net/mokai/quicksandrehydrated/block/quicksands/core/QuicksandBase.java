@@ -518,45 +518,45 @@ public class QuicksandBase extends Block implements QuicksandInterface {
     public void entityInside(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos,
             @NotNull Entity pEntity) {
 
-        // Ottimizzazione: Ignora le bolle per evitare calcoli inutili
+        // Optimization: Ignore bubbles to avoid unnecessary calculations
         if (pEntity instanceof EntityBubble) {
             return;
         }
 
-        // Ottimizzazione: Verifica rapida se l'entità è sopra il blocco
+        // Optimization: Quickly check if the entity is above the block
         boolean isAboveBlock = pEntity.getY() > pPos.getY() + 0.9;
         
-        // Calcola la profondità solo se necessario
+        // Calculate depth only if necessary
         double depth = getDepth(pLevel, pPos, pEntity);
 
         if (depth > 0) {
-            // Imposta l'entità come "in sabbia mobile"
+            // Set the entity as “in quicksand”
             entityQuicksandVar es = (entityQuicksandVar) pEntity;
             es.setInQuicksand(true);
             pEntity.resetFallDistance();
 
-            // Applica l'affondamento solo se l'entità è sopra la sabbia mobile
+            // Only apply sinking if the entity is above quicksand
             if (isAboveBlock) {
-                // Ottimizzazione: Calcola la velocità di affondamento una sola volta
-                // Riduciamo leggermente la velocità di affondamento per un effetto più realistico
+                // Optimization: Calculate the sinking speed only once
+                // We slightly reduce the sinking speed for a more realistic effect.
                 double sinkSpeed = 0.04 * depth;
                 
-                // Controlla se l'entità ha raggiunto il punto di buoyancy
+                // Check whether the entity has reached the buoyancy point
                 double buoyancyPoint = getBuoyancyPoint();
                 
-                // Se la profondità è maggiore o uguale al punto di buoyancy, imposta la velocità di affondamento a 0
+                // If the depth is greater than or equal to the buoyancy point, set the sinking speed to 0.
                 if (depth >= buoyancyPoint) {
                     sinkSpeed = 0.0;
                     
-                    // Se l'entità è un giocatore e sta cercando di muoversi verso l'alto, applica una forza di risalita
+                    // If the entity is a player and is trying to move upward, apply an upward force.
                     if (pEntity instanceof Player) {
                         // Check if player has upward momentum (jumping)
                         if (pEntity.getDeltaMovement().y > 0) {
-                        // Applica una forza di risalita quando si preme il tasto di salto
+                        // Applies upward force when the jump button is pressed
                         double resurfingForce = QSBehavior.getResurfingForce();
                         pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, resurfingForce, 0));
                         
-                        // Aggiungi un effetto sonoro per il resurfing (ogni mezzo secondo)
+                        // Add a sound effect for resurfacing (every half second)
                         if (pLevel.getGameTime() % 10 == 0) {
                             pLevel.playSound(null, pEntity.blockPosition(), 
                                     net.minecraft.sounds.SoundEvents.BUBBLE_COLUMN_UPWARDS_AMBIENT, 
@@ -566,20 +566,20 @@ public class QuicksandBase extends Block implements QuicksandInterface {
                         }
                     }
                 }
-                // Se siamo vicini al punto di buoyancy (entro 0.3 blocchi), riduci gradualmente la velocità
+                // If we are close to the buoyancy point (within 0.3 blocks), gradually reduce speed.
                 else if (buoyancyPoint - depth < 0.3) {
-                    // Riduci linearmente la velocità di affondamento man mano che ci avviciniamo al punto di buoyancy
+                    // Linearly reduce the sinking speed as we approach the buoyancy point.
                     double reductionFactor = (buoyancyPoint - depth) / 0.3;
                     sinkSpeed *= reductionFactor;
                 }
                 
-                // Applica solo se la velocità è significativa
+                // Apply only if speed is significant
                 if (sinkSpeed > 0.001) {
                     pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, -sinkSpeed, 0));
                 }
             }
 
-            // Applica la copertura solo per i giocatori
+            // Apply coverage only for players
             if (pEntity instanceof Player) {
                 tryApplyCoverage(pState, pLevel, pPos, pEntity);
             }
@@ -613,7 +613,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
 
 
     public boolean canBeReplaced(BlockState pState, Fluid pFluid) {
-        // Rimuovi il log di sistema per migliorare le prestazioni
+        // Remove the system log to improve performance
         return false;
     }
 
@@ -623,7 +623,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         return Shapes.block();
     }
     
-    // Ottimizzazione: Crea la forma di collisione una sola volta invece di ricrearla ogni volta
+    // Optimization: Create the collision shape once instead of recreating it every time.
     private static final VoxelShape COLLISION_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 14.0D, 16.0D);
     
     /**
@@ -632,7 +632,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      */
     @Override
     public VoxelShape getCollisionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos, CollisionContext pContext) {
-        // Usa la forma predefinita invece di crearla ogni volta
+        // Use the default form instead of creating it each time
         return Shapes.empty();
     }
     

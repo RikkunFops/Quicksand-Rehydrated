@@ -12,13 +12,13 @@ import net.minecraft.world.level.levelgen.placement.PlacementFilter;
 import net.minecraft.world.level.levelgen.placement.PlacementModifierType;
 
 /**
- * Placement modifier che determina se una pozza di sabbie mobili dovrebbe essere generata in una posizione specifica.
- * Utilizza una combinazione di criteri per garantire che le pozze si generino in posizioni realistiche.
+ * Placement modifier that determines whether a quicksand pool should be generated at a specific location.
+ * It uses a combination of criteria to ensure that puddles are generated in realistic locations.
  */
 public class QuicksandPitPlacement extends PlacementFilter {
     // Singleton instance
     public static final QuicksandPitPlacement INSTANCE = new QuicksandPitPlacement();
-    // Codec per la serializzazione
+    // Codec for serialization
     public static final Codec<QuicksandPitPlacement> CODEC = Codec.unit(() -> INSTANCE);
 
     private QuicksandPitPlacement() {
@@ -28,47 +28,47 @@ public class QuicksandPitPlacement extends PlacementFilter {
     protected boolean shouldPlace(PlacementContext context, RandomSource random, BlockPos pos) {
         WorldGenLevel level = context.getLevel();
         
-        // 1. Trova la superficie
+        // 1. Find the surface area
         int surfaceY = findSurfaceY(level, pos);
         if (surfaceY == -1) return false;
         
-        // Verifica che la superficie sia sopra il livello del mare (y=62)
+        // Verify that the surface is above sea level (y=62)
         if (surfaceY < 62) {
             return false;
         }
         
         BlockPos surfacePos = new BlockPos(pos.getX(), surfaceY, pos.getZ());
         
-        // 2. Verifica che il terreno sia sufficientemente pianeggiante
-        // Semplifichiamo questa verifica per aumentare le possibilità di generazione
+        // 2. Check that the ground is sufficiently level.
+        // Let's simplify this check to increase the chances of generation.
         if (!isTerrainFlat(level, surfacePos, 6, random)) return false;
         
-        // 3. Verifica che siamo a un'altitudine appropriata
+        // 3. Verify that we are at an appropriate altitude
         double heightProbability = getQuicksandProbabilityByHeight(surfaceY);
         if (random.nextDouble() > heightProbability) return false;
         
-        // 4. Usa una noise map per la distribuzione naturale
-        // Semplifichiamo questa verifica per aumentare le possibilità di generazione
+        // 4. Use a noise map for natural distribution
+        // Let's simplify this check to increase the chances of generation.
         if (!shouldGenerateQuicksandPatch(pos.getX(), pos.getZ(), level.getSeed())) return false;
         
-        // 5. Bonus di probabilità se siamo in una depressione naturale
+        // 5. Probability bonus if we are in a natural depression
         boolean inDepression = isNaturalDepression(level, surfacePos, 6);
         
-        // 6. Bonus di probabilità se siamo in un percorso di drenaggio
-        // Disabilitiamo temporaneamente questa verifica per aumentare le possibilità di generazione
+        // 6. Probability bonus if we are on a drainage path
+        // We are temporarily disabling this verification to increase the chances of generation.
         // boolean inDrainagePath = isWaterDrainagePath(level, surfacePos);
         boolean inDrainagePath = false;
         
-        // Decisione finale con bonus per posizioni ideali
-        // Aumentiamo al massimo la probabilità base per garantire la generazione
+        // Final decision with bonus for ideal positions
+        // We maximize the base probability to ensure generation.
         double baseProbability = 1.0; // 100% di probabilità base
         
-        // Stampa di debug
+        // Debug printing
         System.out.println("[QuicksandPitPlacement] Checking placement at " + pos + ", surfaceY=" + surfaceY + 
                            ", heightProb=" + heightProbability + ", inDepression=" + inDepression + 
                            ", finalProb=" + baseProbability);
         
-        // Forziamo la generazione ritornando sempre true
+        // We force the generation by always returning true
         return true;
     }
 
@@ -78,20 +78,20 @@ public class QuicksandPitPlacement extends PlacementFilter {
     }
     
     /**
-     * Trova la coordinata Y della superficie in una data posizione
+     * Find the Y coordinate of the surface at a given position
      */
     private int findSurfaceY(WorldGenLevel level, BlockPos pos) {
-        // Ottieni l'altezza della superficie
+        // Get the height of the surface
         int surfaceY = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, pos.getX(), pos.getZ());
         
-        // Verifica che ci sia un blocco solido
+        // Check that there is a solid block
         BlockPos.MutableBlockPos mutablePos = new BlockPos.MutableBlockPos(pos.getX(), surfaceY, pos.getZ());
         
-        // Trova il primo blocco non-aria
+        // Find the first non-air block
         while (mutablePos.getY() > level.getMinBuildHeight()) {
             BlockState state = level.getBlockState(mutablePos);
             if (!state.isAir()) {
-                // Verifica che ci sia un blocco solido sotto
+                // Check that there is a solid block underneath.
                 BlockPos belowPos = mutablePos.below();
                 BlockState belowState = level.getBlockState(belowPos);
                 
@@ -102,18 +102,18 @@ public class QuicksandPitPlacement extends PlacementFilter {
             mutablePos.move(0, -1, 0);
         }
         
-        return -1; // Nessuna superficie valida trovata
+        return -1; // No valid surface found
     }
     
     /**
-     * Verifica se il terreno è sufficientemente pianeggiante
+     * Check whether the ground is sufficiently level.
      */
     private boolean isTerrainFlat(WorldGenLevel level, BlockPos pos, int radius, RandomSource random) {
         int centerY = pos.getY();
         
-        // Calcola la pendenza massima in direzioni casuali
+        // Calculate the maximum slope in random directions
         double maxSlope = 0.0;
-        int numChecks = 8; // Controlla 8 direzioni casuali per efficienza
+        int numChecks = 8; // Checks 8 random directions for efficiency
         
         for (int i = 0; i < numChecks; i++) {
             double angle = random.nextDouble() * 2 * Math.PI;
@@ -125,7 +125,7 @@ public class QuicksandPitPlacement extends PlacementFilter {
             
             if (checkY == -1) continue;
             
-            // Calcola la pendenza in questa direzione
+            // Calculate the slope in this direction
             double distance = Math.sqrt(dx*dx + dz*dz);
             double heightDiff = Math.abs(checkY - centerY);
             double slope = heightDiff / distance;
@@ -133,49 +133,49 @@ public class QuicksandPitPlacement extends PlacementFilter {
             maxSlope = Math.max(maxSlope, slope);
         }
         
-        // Genera su terreni con pendenza accettabile
-        return maxSlope < 0.35; // Meno del 35% di pendenza (aumentato dal 20%)
+        // Generate on land with acceptable slope
+        return maxSlope < 0.35; // Less than 35% slope (increased from 20%)
     }
     
     /**
-     * Calcola la probabilità di generazione in base all'altitudine
+     * Calculate the probability of generation based on altitude
      */
     private double getQuicksandProbabilityByHeight(int y) {
-        // Definisci un intervallo di altitudine ideale per le sabbie mobili
-        int minIdealHeight = 62; // Livello del mare
-        int maxIdealHeight = 320; // Aumentato drasticamente il range ideale
+        // Define an ideal altitude range for quicksand
+        int minIdealHeight = 62; // Sea level
+        int maxIdealHeight = 320; // The ideal range has increased dramatically
         
-        // Probabilità massima nell'intervallo ideale
+        // Maximum probability in the ideal range
         if (y >= minIdealHeight && y <= maxIdealHeight) {
-            return 1.0; // 100% di probabilità nell'intervallo ideale
+            return 1.0; // 100% probability in the ideal range
         }
         
-        // Probabilità alta anche fuori dall'intervallo ideale
+        // High probability even outside the ideal range
         return 0.9;
     }
     
     /**
-     * Usa una funzione di rumore per determinare dove generare le macchie di sabbie mobili
+     * Use a noise function to determine where to generate quicksand patches.
      */
     private boolean shouldGenerateQuicksandPatch(int x, int z, long seed) {
-        // Forziamo la generazione ritornando sempre true
-        // Questo garantirà che le pozze di sabbie mobili si generino ovunque
+        // We force the generation by always returning true
+        // This will ensure that quicksand pools are generated everywhere.
         return true;
     }
     
     /**
-     * Verifica se la posizione è in una depressione naturale
+     * Check whether the location is in a natural depression.
      */
     private boolean isNaturalDepression(WorldGenLevel level, BlockPos pos, int radius) {
-        // Controlla se la posizione è in una depressione naturale
+        // Check whether the location is in a natural depression.
         int centerY = pos.getY();
         int surroundingAvgY = 0;
         int count = 0;
         
-        // Campiona punti circostanti a distanza maggiore del raggio della pozza
+        // Samples surrounding points at a distance greater than the radius of the pool
         for (int x = -radius*2; x <= radius*2; x += 2) {
             for (int z = -radius*2; z <= radius*2; z += 2) {
-                // Salta i punti all'interno del raggio della pozza
+                // Skip points within the radius of the pool
                 if (Math.sqrt(x*x + z*z) <= radius) continue;
                 
                 BlockPos checkPos = pos.offset(x, 0, z);
@@ -190,18 +190,18 @@ public class QuicksandPitPlacement extends PlacementFilter {
         
         if (count == 0) return false;
         
-        // Calcola l'altezza media del terreno circostante
+        // Calculate the average height of the surrounding terrain
         surroundingAvgY /= count;
         
-        // Verifica se il centro è più basso del terreno circostante
-        return centerY < surroundingAvgY - 1; // Almeno 1 blocco più basso
+        // Check whether the center is lower than the surrounding ground.
+        return centerY < surroundingAvgY - 1; // At least 1 block lower
     }
     
     /**
-     * Verifica se la posizione è in un percorso di drenaggio dell'acqua
+     * Check whether the location is in a water drainage path.
      */
     private boolean isWaterDrainagePath(WorldGenLevel level, BlockPos pos) {
-        // Controlla se ci sono blocchi d'acqua nelle vicinanze
+        // Check if there are any water blocks nearby.
         boolean hasWaterNearby = false;
         int waterCheckRadius = 15;
         
@@ -224,8 +224,8 @@ public class QuicksandPitPlacement extends PlacementFilter {
         
         if (!hasWaterNearby) return false;
         
-        // Verifica se la posizione è in un punto basso rispetto ai dintorni
-        // (potenziale percorso di drenaggio)
+        // Check whether the location is at a lower elevation than the surrounding area.
+        // (potential drainage path)
         int lowerPointsCount = 0;
         int higherPointsCount = 0;
         int checkRadius = 8;
@@ -246,7 +246,7 @@ public class QuicksandPitPlacement extends PlacementFilter {
             }
         }
         
-        // Se ci sono più punti più alti che più bassi, siamo in un potenziale percorso di drenaggio
+        // If there are more high points than low points, we are on a potential drainage path.
         return higherPointsCount > lowerPointsCount * 1.5;
     }
 }
