@@ -10,20 +10,20 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
 /**
- * Registro per i tipi di placement modifier personalizzati
+ * Register for custom placement modifier types
  */
 public class ModPlacementModifierTypes {
-    // Crea un registro differito per i placement modifier
+    // Create a deferred registry for placement modifiers
     public static final DeferredRegister<PlacementModifierType<?>> PLACEMENT_MODIFIERS = 
             DeferredRegister.create(Registries.PLACEMENT_MODIFIER_TYPE, QuicksandRehydrated.MOD_ID);
     
-    // Registra il nostro placement modifier personalizzato
+    // Register our custom placement modifier
     public static final RegistryObject<PlacementModifierType<QuicksandPitPlacement>> QUICKSAND_PIT_PLACEMENT = 
             PLACEMENT_MODIFIERS.register("quicksand_pit_placement", 
                     () -> () -> QuicksandPitPlacement.CODEC);
     
     /**
-     * Registra i placement modifier con l'event bus di Forge
+     * Register placement modifiers with the Forge event bus
      */
     public static void register(IEventBus eventBus) {
         PLACEMENT_MODIFIERS.register(eventBus);
