@@ -122,12 +122,12 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         // Check if the block is quicksand
         BlockState pState = pEntity.level().getBlockState(pPos);
         
-        // Verifica che il blocco non sia aria prima di considerarlo come sabbia mobile
+        // Check that the block is not air before considering it as quicksand.
         if (pState.isAir() || !(pState.getBlock() instanceof QuicksandBase)) {
             return false;
         }
         
-        // Verifica che l'entità non stia saltando
+        // Verify that the entity is not skipping
         if (pEntity.getDeltaMovement().y > 0.05) {
             return false;
         }
@@ -159,16 +159,16 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         boolean intersectsZ = entityMaxZ > blockMinZ && entityMinZ < blockMaxZ;
         
         // The entity is in the block if all three dimensions intersect
-        // Aggiungiamo un controllo speciale per la parte superiore del corpo
+        // Let's add a special control for the upper body
         if (intersectsX && intersectsZ) {
-            // Se la parte superiore del corpo è nel blocco, consideriamo l'entità come valida
-            // anche se la parte inferiore non lo è
+            // If the upper body is in the block, we consider the entity to be valid.
+            // even if the bottom part is not
             double upperBodyY = entityY + entityHeight * 0.5;
             if (upperBodyY >= blockMinY && upperBodyY <= blockMaxY) {
                 return true;
             }
             
-            // Altrimenti, usiamo il controllo standard
+            // Otherwise, we use the standard control.
             return intersectsY;
         }
         
@@ -206,7 +206,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         
         // Check if the block at the entity's feet is quicksand
         BlockState feetState = level.getBlockState(feetPos);
-        // Verifica che il blocco non sia aria prima di considerarlo come sabbia mobile
+        // Check that the block is not air before considering it as quicksand.
         if (!feetState.isAir() && feetState.getBlock() instanceof QuicksandBase && stuckBlockValid(feetPos, pEntity)) {
             return feetPos;
         }
@@ -220,22 +220,22 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         
         // Check if the block the entity is in is quicksand
         BlockState entityState = level.getBlockState(entityPos);
-        // Verifica che il blocco non sia aria prima di considerarlo come sabbia mobile
+        // Check that the block is not air before considering it as quicksand.
         if (!entityState.isAir() && entityState.getBlock() instanceof QuicksandBase && stuckBlockValid(entityPos, pEntity)) {
             return entityPos;
         }
         
-        // Se i casi comuni non hanno funzionato, controlla prima la parte superiore del corpo
-        // Questo è importante per far sì che l'effetto delle sabbie mobili si applichi anche alla parte superiore
+        // If the common cases did not work, check the upper body first.
+        // This is important to ensure that the quicksand effect also applies to the upper part.
         
-        // Prima controlla la parte superiore del corpo (dalla metà in su)
+        // First, check the upper part of your body (from the middle up).
         int midY = (int) Math.floor(entityY + entityHeight * 0.5);
         for (int y = midY; y <= maxY; y++) {
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     BlockPos pos = new BlockPos(x, y, z);
                     
-                    // Salta le posizioni già controllate
+                    // Skip positions already checked
                     if (pos.equals(feetPos) || pos.equals(entityPos)) {
                         continue;
                     }
@@ -248,13 +248,13 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
             }
         }
         
-        // Poi controlla la parte inferiore del corpo (dalla metà in giù)
+        // Then check the lower part of the body (from the middle down)
         for (int y = minY; y < midY; y++) {
             for (int x = minX; x <= maxX; x++) {
                 for (int z = minZ; z <= maxZ; z++) {
                     BlockPos pos = new BlockPos(x, y, z);
                     
-                    // Salta le posizioni già controllate
+                    // Skip positions already checked
                     if (pos.equals(feetPos) || pos.equals(entityPos)) {
                         continue;
                     }
@@ -277,7 +277,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         Entity thisEntity = (Entity)(Object)this;
         entityQuicksandVar qsE = (entityQuicksandVar)(Object)this;
 
-        // Non applicare effetti di sabbie mobili se l'entità sta saltando
+        // Do not apply quicksand effects if the entity is jumping
         if (thisEntity.getDeltaMovement().y > 0.05) {
             return;
         }
@@ -296,7 +296,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
             Level eLevel = thisEntity.level();
             BlockState bs = eLevel.getBlockState(bp);
             
-            // Verifica che il blocco non sia aria
+            // Check that the block is not air
             if (!bs.isAir() && bs.getBlock() instanceof QuicksandBase qs) {
                 // Only trigger firstTouch when entering quicksand for the first time
                 if (!qsE.getEnterQuicksandFlag()) {
@@ -350,17 +350,17 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
     private void collide(Vec3 pVec, CallbackInfoReturnable<Vec3> cir) {
         Entity thisEntity = (Entity)(Object)this;
         
-        // Non modificare onGround se l'entità sta saltando o se sta cadendo
+        // Do not modify onGround if the entity is jumping or falling
         if (thisEntity.getDeltaMovement().y > 0.05) {
-            // Se l'entità sta saltando, non fare nulla
+            // If the entity is jumping, do nothing.
             return;
         }
         
-        // Verifica se l'entità è su un blocco di sabbie mobili
+        // Check whether the entity is on a block of quicksand
         BlockState test = thisEntity.getFeetBlockState();
         if (test.getTags().toList().contains(QUICKSAND_DROWNABLE)) {
-            // Imposta onGround a true solo se l'entità è effettivamente a contatto con il blocco
-            // e non sta saltando
+            // Set onGround to true only if the entity is actually in contact with the block
+            // and it's not jumping
             if (thisEntity.getDeltaMovement().y <= 0.0) {
                 thisEntity.setOnGround(true);
             }
@@ -386,68 +386,68 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         Entity thisEntity = (Entity)(Object)this;
         entityQuicksandVar qsEntity = (entityQuicksandVar)(Object)this;
         
-        // Verifica se l'entità è in sabbie mobili - early return se non lo è
+        // Check if the entity is in quicksand - early return if it is not
         if (!qsEntity.getInQuicksand()) {
             return;
         }
         
-        // Ottieni il blocco di sabbie mobili in cui si trova l'entità
+        // Obtain the quicksand block where the entity is located.
         BlockPos stuckBlockPos = qsEntity.getStuckBlock(thisEntity);
         if (stuckBlockPos == null) {
             return;
         }
         
-        // Ottieni il blocco e lo stato del blocco
+        // Get the block and block status
         Level level = thisEntity.level();
         BlockState blockState = level.getBlockState(stuckBlockPos);
         Block block = blockState.getBlock();
         
-        // Verifica che sia un blocco di sabbie mobili
+        // Check that it is a block of quicksand.
         if (!(block instanceof QuicksandBase quicksandBlock)) {
             return;
         }
         
-        // Calcola la profondità dell'entità nelle sabbie mobili
+        // Calculate the depth of the entity in quicksand
         double depth = quicksandBlock.getDepth(level, stuckBlockPos, thisEntity);
         
-        // Applica gli effetti di movimento delle sabbie mobili
+        // Apply the motion effects of quicksand
         quicksandBlock.quicksandMomentum(blockState, level, stuckBlockPos, thisEntity, depth);
         
-        // Modifica il vettore di movimento
+        // Change the movement vector
         Vec3 currentVec = Vec3localRef.get();
         
-        // Ottimizzazione: Combina tutte le modifiche in un'unica operazione
+        // Optimization: Combine all changes into a single operation
         double xMod = currentVec.x;
         double yMod = currentVec.y;
         double zMod = currentVec.z;
         boolean modified = false;
         
-        // Applica una resistenza verticale per simulare l'affondamento
+        // Apply vertical resistance to simulate sinking
         if (yMod < 0) {
-            // Fattore di affondamento
+            // Sinking factor
             yMod *= 0.7;
             modified = true;
         }
         
-        // Applica una resistenza orizzontale solo se c'è un movimento significativo
+        // Apply horizontal resistance only if there is significant movement.
         boolean hasHorizontalMovement = Math.abs(xMod) > 0.01 || Math.abs(zMod) > 0.01;
         if (hasHorizontalMovement) {
-            // Calcola un fattore di resistenza basato sulla profondità
+            // Calculate a resistance factor based on depth
             double resistanceFactor = Math.max(0.1, 1.0 - (depth * 0.5));
             xMod *= resistanceFactor;
             zMod *= resistanceFactor;
             modified = true;
         }
         
-        // Se l'entità sta saltando, riduci l'altezza del salto
+        // If the entity is jumping, reduce the jump height.
         if (yMod > 0.1) {
-            // Riduci l'altezza del salto in base alla profondità
+            // Reduce the height of the jump based on the depth
             double jumpFactor = Math.max(0.1, 1.0 - (depth * 0.7));
             yMod *= jumpFactor;
             modified = true;
         }
         
-        // Applica le modifiche solo se necessario
+        // Apply changes only if necessary
         if (modified) {
             Vec3localRef.set(new Vec3(xMod, yMod, zMod));
         }
@@ -460,34 +460,34 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
             argsOnly = true
     )
     private Vec3 injected(Vec3 momentum) {
-        // Ottimizzazione: Evita casting e operazioni non necessarie
+        // Optimization: Avoid unnecessary casting and operations
         entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar)(Object)this;
 
-        // Ottimizzazione: Verifica se ci sono modifiche da applicare prima di procedere
+        // Optimization: Check if there are any changes to apply before proceeding
         Vec3 quicksandMod = QuicksandVarEntity.getQuicksandMultiplier();
         Vec3 quicksandAdd = QuicksandVarEntity.getQuicksandAdditive();
         
         boolean hasMultiplier = quicksandMod.length() > 1.0E-6D;
         boolean hasAdditive = quicksandAdd.length() > 1.0E-6D;
         
-        // Se non ci sono modifiche da applicare, restituisci il momentum originale
+        // If there are no changes to apply, return the original momentum.
         if (!hasMultiplier && !hasAdditive) {
             return momentum;
         }
         
-        // Applica il moltiplicatore se presente
+        // Apply the multiplier if present
         if (hasMultiplier) {
             momentum = momentum.multiply(quicksandMod);
             QuicksandVarEntity.setQuicksandMultiplier(Vec3.ZERO);
         }
 
-        // Applica l'additivo se presente
+        // Apply the additive if present
         if (hasAdditive) {
             momentum = momentum.add(quicksandAdd);
             QuicksandVarEntity.setQuicksandAdditive(Vec3.ZERO);
         }
 
-        // Aggiorna il deltaMovement solo se necessario
+        // Update deltaMovement only if necessary
         Entity thisEntity = (Entity)(Object)this;
         thisEntity.setDeltaMovement(momentum);
         
@@ -497,7 +497,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
 
 
     public boolean entityCanStepOut(Entity pEntity) {
-        // Usa l'entità passata come parametro, non thisEntity
+        // Use the past entity as a parameter, not thisEntity
         entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar)(Object)pEntity;
 
         BlockPos stuckBlockPos = QuicksandVarEntity.getStuckBlock(pEntity);
@@ -519,7 +519,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
     private void onMoveAfterSetOnGround(MoverType pType, Vec3 pPos, CallbackInfo ci) {
         Entity thisEntity = (Entity)(Object)this;
         
-        // Non modificare onGround se l'entità sta saltando
+        // Do not modify onGround if the entity is jumping
         if (thisEntity.getDeltaMovement().y > 0.05) {
             return;
         }
@@ -532,7 +532,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
                 notFlyingPlayer = !p.getAbilities().flying;
             }
 
-            // Commentato per evitare problemi con il salto
+            // Commented to avoid problems with jumping
             // if (notFlyingPlayer) {
             //     thisEntity.setOnGround(true);
             // }

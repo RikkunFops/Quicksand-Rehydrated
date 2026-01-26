@@ -50,39 +50,39 @@ public class EasingHandler {
 
 
     public static double getDepth(Entity pEntity, Level pLevel, BlockPos pPos, double offset) {
-        // Ottimizzazione: Usa direttamente la posizione Y dell'entità invece di getPosition(1)
+        // Optimization: Use the entity's Y position directly instead of getPosition(1)
         double playerY = pEntity.getY();
         double playerHeight = pEntity.getBbHeight();
         
-        // Calcola la superficie del blocco di sabbie mobili
-        // La superficie è al livello Y del blocco + 1 (parte superiore del blocco)
+        // Calculate the surface area of the quicksand block.
+        // The surface is at block level Y + 1 (top of the block).
         double surfaceY = pPos.getY() + 1.0 - offset;
         
-        // Calcola la profondità standard (dai piedi) rispetto alla superficie
+        // Calculate the standard depth (from the feet) relative to the surface
         double standardDepth = surfaceY - playerY;
         
-        // Calcola anche la profondità dalla testa rispetto alla superficie
+        // Also calculate the depth from the head to the surface.
         double headY = playerY + playerHeight;
         double headDepth = surfaceY - headY;
         
-        // Se la testa è sotto la superficie, usa la profondità standard
-        // Altrimenti, usa una formula che considera sia la posizione dei piedi che della testa
+        // If your head is below the surface, use the standard depth.
+        // Otherwise, use a formula that considers both the position of the feet and the head.
         if (headDepth > 0) {
-            // La testa è sotto la superficie, usa la profondità standard
+            // The head is below the surface, use the standard depth
             return standardDepth;
         } else {
-            // La testa è sopra la superficie, calcola una profondità proporzionale
-            // alla parte del corpo che è effettivamente immersa
+            // The head is above the surface, calculate a proportional depth.
+            // to the part of the body that is actually submerged
             
-            // Calcola la porzione immersa in modo più preciso
-            // Questo è il rapporto tra la parte del corpo sotto la superficie e l'altezza totale
+            // Calculate the submerged portion more accurately
+            // This is the ratio between the part of the body below the surface and the total height.
             double immersedHeight = Math.max(0, surfaceY - playerY);
             
-            // Assicurati che la profondità sia proporzionale alla parte immersa
-            // Rimuoviamo la correzione che potrebbe interferire con il buoyancy
+            // Ensure that the depth is proportional to the submerged part.
+            // We remove the correction that could interfere with buoyancy.
             double correctedDepth = immersedHeight;
             
-            // Assicuriamoci che la profondità non sia mai negativa
+            // Let's make sure that the depth is never negative.
             return Math.max(0, correctedDepth);
         }
     }
@@ -90,14 +90,14 @@ public class EasingHandler {
     public static double getDepthPos(Vec3 worldPos, Level pLevel, BlockPos pPos, double offset) {
         double playerY = worldPos.y();
         
-        // Calcola la superficie del blocco di sabbie mobili
-        // La superficie è al livello Y del blocco + 1 (parte superiore del blocco)
+        // Calculate the surface area of the quicksand block.
+        // The surface is at block level Y + 1 (top of the block).
         double surfaceY = pPos.getY() + 1.0 - offset;
         
-        // Calcola la profondità rispetto alla superficie
+        // Calculate the depth relative to the surface
         double depth = surfaceY - playerY;
         
-        // Assicurati che la profondità non sia mai negativa
+        // Ensure that the depth is never negative.
         return Math.max(0, depth);
     }
 

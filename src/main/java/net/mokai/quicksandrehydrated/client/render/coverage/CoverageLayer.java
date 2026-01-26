@@ -100,10 +100,10 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
                 continue;
             }
 
-            // Calcoliamo i limiti del coverage in modo più preciso per allinearlo con la superficie del blocco
-            // Rimuoviamo gli offset che causavano problemi con il buoyancy
-            double bot = 1.0 - (entry.end/32.0); // Rimosso offset negativo
-            double top = 1.0 - (entry.begin/32.0); // Rimosso offset positivo
+            // We calculate coverage limits more precisely to align them with the block surface.
+            // We are removing the offsets that were causing buoyancy issues.
+            double bot = 1.0 - (entry.end/32.0); // Negative offset removed
+            double top = 1.0 - (entry.begin/32.0); // Positive offset removed
 
             // Get the texture for this coverage
             TextureAtlasSprite colorTex;
@@ -120,12 +120,12 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
                     float A = alphaValues[i][k];
                     
                     // If the alpha of this pixel is within the bounds, use the pixel from the coverage texture
-                    // Modifichiamo la condizione per un calcolo più preciso del coverage
-                    // Utilizziamo una tolleranza minima per evitare problemi di precisione dei float
+                    // Let's modify the condition for a more accurate coverage calculation.
+                    // We use a minimum tolerance to avoid float precision issues.
                     if (A <= top + 0.0001f && A >= bot - 0.0001f) {
                         int color_rgba = colorTex.getPixelRGBA(0, i, k);
                         
-                        // Otteniamo l'opacità originale
+                        // We obtain the original opacity
                         int alpha = FastColor.ARGB32.alpha(color_rgba);
                         
                         // Only set the pixel if it has some opacity
@@ -139,8 +139,8 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
 
         this.texture.upload();
         
-        // Debug: stampa informazioni sul coverage per aiutare a diagnosticare problemi
-        // Decommentare questa sezione se si verificano problemi con il coverage
+        // Debug: print coverage information to help diagnose problems
+        // Uncomment this section if you encounter problems with coverage.
         /*
         if (!sortedEntries.isEmpty()) {
             System.out.println("Coverage entries: " + sortedEntries.size());

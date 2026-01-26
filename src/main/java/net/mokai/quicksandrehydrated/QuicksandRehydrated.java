@@ -115,7 +115,7 @@ public class QuicksandRehydrated {
             }
         }
 
-        // Commentiamo temporaneamente questo evento per verificare se è la causa del problema
+        // Let's temporarily comment out this event to see if it is the cause of the problem.
         /*
         @SubscribeEvent
         public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
@@ -130,8 +130,8 @@ public class QuicksandRehydrated {
             }
             System.out.println(entity.getName() + " jumped!");
 
-            // Verifica se l'entità è effettivamente su un blocco di sabbie mobili
-            // Usa la posizione attuale dell'entità invece di getOnPosLegacy()
+            // Check whether the entity is actually on a block of quicksand.
+            // Use the current position of the entity instead of getOnPosLegacy()
             BlockPos entityPos = entity.blockPosition().below();
             BlockState blockState = entity.level().getBlockState(entityPos);
 
