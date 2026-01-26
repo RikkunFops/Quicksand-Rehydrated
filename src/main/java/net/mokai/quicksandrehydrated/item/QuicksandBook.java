@@ -1,4 +1,4 @@
-package net.mokai.quicksandrehydrated.item.custom;
+package net.mokai.quicksandrehydrated.item;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.Screen;

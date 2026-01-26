@@ -1,4 +1,4 @@
-package net.mokai.quicksandrehydrated.item.custom.potion;
+package net.mokai.quicksandrehydrated.item.potion;
 
 
 import net.minecraft.sounds.SoundEvents;
