@@ -5,6 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -83,6 +84,11 @@ public class QuicksandRehydrated {
         }
     }
 
+    /**
+     * Set entity to drown if their breathing point is in quicksand. This position is usually the eye position, but
+     * the Snorkel and Breathing Reed increase this by +1 and +2 blocks respectively.
+     * Yes, this means if your head is fine but your snorkel is in quicksand, you'll start drowning.
+     */
 
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class GameModEvents {
@@ -90,12 +96,40 @@ public class QuicksandRehydrated {
         public static void onLivingBreatheEvent(LivingBreatheEvent event) {
 
             Entity entity = event.getEntity();
-            Vec3 eyePos = entity.getEyePosition();
-            BlockPos eyeBlockPos = new BlockPos((int) Math.floor(eyePos.x()), (int) Math.floor(eyePos.y()), (int) Math.floor(eyePos.z()));
-            BlockState eyeState = entity.level().getBlockState(eyeBlockPos);
 
-            if (eyeState.is(QUICKSAND_DROWNABLE)) {
-                event.setCanBreathe(false);
+            boolean isHoldingReed = false; // Check inventory slots for the reed in hand, and mask anywhere in armor. This should handle baubles?
+            boolean isWearingMask = false;
+
+            Iterable<ItemStack> handitems = entity.getHandSlots();
+            for (ItemStack item : handitems) {
+                if (item.getItem().equals(ModItems.BREATHING_REED.get())) {
+                    isHoldingReed = true;
+                }
+            }
+            Iterable<ItemStack> armorItems = entity.getArmorSlots();
+            for (ItemStack item : armorItems) {
+                if (item.getItem().equals(ModItems.SNORKEL_MASK.get())) { // TODO: Check if this accounts for baubles. Also, add Baubles compatibility in the first place-
+                    isWearingMask = true;
+                }
+            }
+
+
+            Vec3 breathingPos = entity.getEyePosition();
+
+            if (isHoldingReed) { // Use the reed by default, even if wearing mask.
+                breathingPos = breathingPos.add(0, 2, 0);
+            } else if (isWearingMask) {
+                breathingPos = breathingPos.add(0,1,0);
+            }
+
+            BlockPos breathingBlockPos = new BlockPos((int) Math.floor(breathingPos.x()), (int) Math.floor(breathingPos.y()), (int) Math.floor(breathingPos.z()));
+            BlockState breathingBlockState = entity.level().getBlockState(breathingBlockPos);
+
+            if (breathingBlockState.is(QUICKSAND_DROWNABLE)) {
+                double quicksandLevel = ((QuicksandBase)breathingBlockState.getBlock()).getOffset(breathingBlockState);
+                if (breathingPos.y < breathingBlockPos.getY()+1-quicksandLevel) { // Checks in case we're in a partial quicksand block.
+                    event.setCanBreathe(false);
+                }
             }
 
         }

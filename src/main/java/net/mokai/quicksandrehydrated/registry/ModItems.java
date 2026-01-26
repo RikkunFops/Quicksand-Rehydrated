@@ -37,10 +37,15 @@ public class ModItems {
     public static final RegistryObject<Item> QUICKSAND_SPLASH_POTION =
             ITEMS.register("splash_potion_of_sinking", () -> new QuicksandPotionThrowable(new Item.Properties().stacksTo(16)));
 
+    public static final RegistryObject<Item> BREATHING_REED =
+            ITEMS.register("breathing_reed", () -> new Item(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> SNORKEL_MASK =
+            ITEMS.register("snorkel_mask",
+                    () -> new ArmorItem(ArmorMaterials.IRON , ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1) ));
+
     public static final RegistryObject<SpawnEggItem> HUNNIBEE_SPAWN_EGG =
             ITEMS.register("hunnibee_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.HUNNIBEE, 0x1B1B1B, 0xFFFF00, new Item.Properties()));
-    public static final RegistryObject<SpawnEggItem> TAR_GOLEM_SPAWN_EGG =
-            ITEMS.register("tar_golem_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.TAR_GOLEM, 0x1B1B1B, 0xD1BC92, new Item.Properties()));
+
 
     public static final RegistryObject<SpawnEggItem> TAR_SLIME_SPAWN_EGG =
             ITEMS.register("tar_slime_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.TAR_SLIME, 0x0A0A0A, 0x2A2A2A, new Item.Properties()));
@@ -73,8 +78,9 @@ public class ModItems {
         addItem(QUICKSAND_BOOK);
         addItem(QUICKSAND_POTION);
         addItem(QUICKSAND_SPLASH_POTION);
+        addItem(BREATHING_REED);
+        addItem(SNORKEL_MASK);
         addEggItem(HUNNIBEE_SPAWN_EGG);
-        addEggItem(TAR_GOLEM_SPAWN_EGG);
         addEggItem(TAR_SLIME_SPAWN_EGG);
         addEggItem(MUDDY_BLOB_SPAWN_EGG);
         addEggItem(SAND_BLOB_SPAWN_EGG);
