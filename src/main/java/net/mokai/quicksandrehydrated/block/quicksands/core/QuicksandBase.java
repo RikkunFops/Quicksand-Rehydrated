@@ -77,38 +77,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      * @param depth The depth in blocks. <code>0</code> is exactly on surface level.
      * @return The sinking value. Lower value means slower sinking.
      */
-    public double getSinkSpeed(double depth) {
-        // Get the configured buoyancy point
-        double buoyancyPoint = QSBehavior.getBuoyancyPoint();
-        
-        // Calculate how much we're beyond the buoyancy point (if at all)
-        double beyondBuoyancy = depth - buoyancyPoint;
-        
-        if (beyondBuoyancy > 0) {
-            // We're beyond the buoyancy point
-            // Use a smooth curve to gradually reduce sink speed as we go deeper
-            
-            // This formula creates a gentle curve that approaches zero as depth increases
-            // but never quite reaches zero to ensure some minimal movement
-            double reductionFactor = 0.05 + 0.15 * Math.exp(-beyondBuoyancy * 3);
-            
-            return QSBehavior.getSinkSpeed(depth) * reductionFactor;
-        }
-        else {
-            // We're at or above the buoyancy point
-            double baseSinkSpeed = QSBehavior.getSinkSpeed(depth);
-            
-            // Use a smooth curve to gradually reduce sink speed as we approach buoyancy
-            // The closer we get to buoyancy, the more we reduce the sink speed
-            double distanceFromBuoyancy = Math.abs(beyondBuoyancy);
-            
-            // This creates a curve that starts at 20% at buoyancy and smoothly increases to 100%
-            // as we move away from buoyancy
-            double speedFactor = 0.2 + 0.8 * Math.tanh(distanceFromBuoyancy * 3);
-            
-            return baseSinkSpeed * speedFactor;
-        }
-    }
+    public double getSinkSpeed(double depth) {return QSBehavior.getSinkSpeed(depth);}
 
     /**
      * Horizontal movement speed depending on the depth.
@@ -230,47 +199,9 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         }
         if (!playerFlying) {
 
-//            if (vert != 0.0) {
-//                sink = sink / vert; // counteract vertical thickness (?)
-//            }
-            
-            // Check if we are close to the buoyancy point
-            double buoyancyPoint = QSBehavior.getBuoyancyPoint();
-            double distanceToBuoyancy = buoyancyPoint - depth;
-            
-            // Calculate how much we're beyond the buoyancy point (if at all)
-            double beyondBuoyancy = depth - buoyancyPoint;
-            
-            if (beyondBuoyancy > 0) {
-                // We're beyond the buoyancy point - apply resurfing that scales with depth
-                
-                // Calculate resurfing force with a smooth curve
-                // This creates a gradual increase from 0 at buoyancy point
-                // The square function makes it very gentle near buoyancy
-                double resurfingForce = QSBehavior.getResurfingForce() * Math.pow(beyondBuoyancy, 1.5) * 2.0;
-                
-                // Apply a minimum force when very close to buoyancy to ensure some movement
-                if (beyondBuoyancy < 0.05) {
-                    resurfingForce = Math.max(resurfingForce, QSBehavior.getResurfingForce() * 0.01);
-                }
-                
-                Vec3 resurfingVec = new Vec3(0, resurfingForce, 0);
-                entQS.addQuicksandAdditive(resurfingVec);
-            } 
-            else {
-                // We're at or above the buoyancy point - apply sinking force
-                
-                // Calculate sinking force with a smooth curve
-                // This creates a gradual decrease as we approach buoyancy
-                double distanceFromBuoyancy = Math.abs(beyondBuoyancy);
-                double sinkFactor = Math.min(1.0, 0.2 + 0.8 * Math.tanh(distanceFromBuoyancy * 3));
-                
-                // Apply the scaled sinking force
-                double scaledSink = -sink * sinkFactor;
-                
-                Vec3 addVec = new Vec3(0, scaledSink, 0);
-                entQS.addQuicksandAdditive(addVec);
-            }
+            Vec3 addVec = new Vec3(0, -sink, 0);
+            entQS.addQuicksandAdditive(addVec);
+
         }
 
         Vec3 thicknessVector = new Vec3(walk, vert, walk);
