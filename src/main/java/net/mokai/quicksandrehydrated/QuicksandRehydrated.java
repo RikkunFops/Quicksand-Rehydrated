@@ -8,6 +8,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -15,6 +16,7 @@ import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.IFluidBlock;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -27,6 +29,7 @@ import net.mokai.quicksandrehydrated.registry.*;
 import net.mokai.quicksandrehydrated.screen.MixerScreen;
 import net.mokai.quicksandrehydrated.screen.ModMenuTypes;
 import net.mokai.quicksandrehydrated.worldgen.placement.ModPlacementModifierTypes;
+import net.minecraftforge.common.ForgeMod;
 
 import static net.mokai.quicksandrehydrated.util.ModTags.Blocks.QUICKSAND_DROWNABLE;
 
@@ -95,7 +98,7 @@ public class QuicksandRehydrated {
         @SubscribeEvent
         public static void onLivingBreatheEvent(LivingBreatheEvent event) {
 
-            Entity entity = event.getEntity();
+            LivingEntity entity = event.getEntity();
 
             boolean isHoldingReed = false; // Check inventory slots for the reed in hand, and mask anywhere in armor. This should handle baubles?
             boolean isWearingMask = false;
@@ -115,23 +118,46 @@ public class QuicksandRehydrated {
 
 
             Vec3 breathingPos = entity.getEyePosition();
-
-            if (isHoldingReed) { // Use the reed by default, even if wearing mask.
-                breathingPos = breathingPos.add(0, 2, 0);
-            } else if (isWearingMask) {
-                breathingPos = breathingPos.add(0,1,0);
-            }
-
             BlockPos breathingBlockPos = new BlockPos((int) Math.floor(breathingPos.x()), (int) Math.floor(breathingPos.y()), (int) Math.floor(breathingPos.z()));
             BlockState breathingBlockState = entity.level().getBlockState(breathingBlockPos);
+            FluidState fs = breathingBlockState.getFluidState();
 
-            if (breathingBlockState.is(QUICKSAND_DROWNABLE)) {
-                double quicksandLevel = ((QuicksandBase)breathingBlockState.getBlock()).getOffset(breathingBlockState);
-                if (breathingPos.y < breathingBlockPos.getY()+1-quicksandLevel) { // Checks in case we're in a partial quicksand block.
-                    event.setCanBreathe(false);
-                }
+
+            Vec3 alteredBreathingPos = entity.getEyePosition();
+            double snorkelHeight = 1.5; // SET TO BE CONFIGURABLE
+            double reedHeight = 2;
+            if (isHoldingReed) { // Use the reed by default, even if wearing mask.
+                alteredBreathingPos = breathingPos.add(0, reedHeight, 0);
+                event.setCanBreathe(true);
+                event.setCanRefillAir(true);
+            } else if (isWearingMask) {
+                alteredBreathingPos = breathingPos.add(0,snorkelHeight,0);
+                event.setCanBreathe(true);
+                event.setCanRefillAir(true);
             }
 
+            BlockPos alteredBreathingblockPos = new BlockPos((int) Math.floor(alteredBreathingPos.x()), (int) Math.floor(alteredBreathingPos.y()), (int) Math.floor(alteredBreathingPos.z()));
+            BlockState alteredBreathingBlockState = entity.level().getBlockState(alteredBreathingblockPos);
+            FluidState afs = alteredBreathingBlockState.getFluidState();
+
+            // TODO: go over the logic of this again. Right now we default to true and then set to false, but we aught to avoid overriding things if they don't need to be overridden.
+
+            if (afs.getFluidType().canDrownIn(entity)) {
+                double fluidLevel = afs.getOwnHeight();
+                if (alteredBreathingPos.y < alteredBreathingblockPos.getY()+fluidLevel) { // Checks in case we're in a partial water block.
+                    event.setCanBreathe(false);
+                    event.setCanRefillAir(false);
+                }
+            } else if (alteredBreathingBlockState.is(QUICKSAND_DROWNABLE) && alteredBreathingBlockState.getBlock() instanceof QuicksandBase) {
+                double quicksandLevel = ((QuicksandBase)alteredBreathingBlockState.getBlock()).getOffset(alteredBreathingBlockState);
+                if (alteredBreathingPos.y < alteredBreathingblockPos.getY()+1-quicksandLevel) { // Checks in case we're in a partial quicksand block.
+                    event.setCanBreathe(false);
+                    event.setCanRefillAir(false);
+                }
+            } else if (alteredBreathingBlockState.canOcclude()) {
+                event.setCanBreathe(false);
+                event.setCanRefillAir(false);
+            }
         }
         
         @SubscribeEvent

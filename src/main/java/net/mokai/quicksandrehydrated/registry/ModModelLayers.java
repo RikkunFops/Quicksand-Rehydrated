@@ -19,6 +19,8 @@ public class ModModelLayers {
     public static final ModelLayerLocation BUBBLE_LAYER = new ModelLayerLocation(
             new ResourceLocation(QuicksandRehydrated.MOD_ID, "bubble_layer"), "main");
 
+    public static final ModelLayerLocation SNORKEL = new ModelLayerLocation(
+            new ResourceLocation(QuicksandRehydrated.MOD_ID, "snorkel"), "main");
 
     public static final ModelLayerLocation COVERAGE_LAYER_DEFAULT = new ModelLayerLocation(
             new ResourceLocation(QuicksandRehydrated.MOD_ID, "coverage_default"), "main");

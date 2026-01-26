@@ -40,7 +40,7 @@ public class ModItems {
     public static final RegistryObject<Item> BREATHING_REED =
             ITEMS.register("breathing_reed", () -> new Item(new Item.Properties().stacksTo(1)));
     public static final RegistryObject<Item> SNORKEL_MASK =
-            ITEMS.register("snorkel_mask",
+            ITEMS.register("snorkel",
                     () -> new ArmorItem(ArmorMaterials.IRON , ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1) ));
 
     public static final RegistryObject<SpawnEggItem> HUNNIBEE_SPAWN_EGG =

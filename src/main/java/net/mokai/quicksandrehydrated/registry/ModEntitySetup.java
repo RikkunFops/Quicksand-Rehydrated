@@ -1,6 +1,7 @@
 package net.mokai.quicksandrehydrated.registry;
 
 import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -8,6 +9,7 @@ import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
+import net.mokai.quicksandrehydrated.client.model.armor.SnorkelModel;
 import net.mokai.quicksandrehydrated.client.render.*;
 import net.mokai.quicksandrehydrated.client.render.mob.*;
 import net.mokai.quicksandrehydrated.entity.*;
@@ -44,6 +46,7 @@ public class ModEntitySetup {
 
         event.registerLayerDefinition(ModModelLayers.CAVE_BLOB_CLEAR_LAYER, CaveBlobModel::createOuterBodyLayer);
         event.registerLayerDefinition(ModModelLayers.CAVE_BLOB_SOLID_LAYER, CaveBlobModel::createInnerBodyLayer);
+        event.registerLayerDefinition(ModModelLayers.SNORKEL, () -> SnorkelModel.createArmorLayer(new CubeDeformation(0)));
     }
 
     @SubscribeEvent
