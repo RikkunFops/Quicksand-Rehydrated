@@ -1,18 +1,12 @@
-package net.mokai.quicksandrehydrated.block.Plants;
+package net.mokai.quicksandrehydrated.block.plants;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.data.ForgeBlockTagsProvider;
-import net.minecraftforge.common.extensions.IForgeBlock;
-import net.mokai.quicksandrehydrated.registry.ModBlocks;
 import net.mokai.quicksandrehydrated.util.ModTags;
 
 public class PeatBogBush extends BushBlock {

@@ -1,4 +1,4 @@
-package net.mokai.quicksandrehydrated.block.Plants;
+package net.mokai.quicksandrehydrated.block.plants;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -9,18 +9,18 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.mokai.quicksandrehydrated.util.ModTags;
 
-public class FernBush extends BushBlock {
-    public FernBush(Properties properties) {
+public class Duckweed extends BushBlock {
+    public Duckweed(Properties properties) {
         super(properties);
     }
 
-    protected static final VoxelShape SHAPE = Block.box((double)2.0F, (double)0.0F, (double)2.0F, (double)14.0F, (double)13.0F, (double)14.0F);
+    protected static final VoxelShape SHAPE = Block.box((double)0.0F, (double)0.0F, (double)0.0F, (double)16.0F, (double)1.0F, (double)16.0F);
 
     public VoxelShape getShape(BlockState State, BlockGetter getter, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 
     protected boolean mayPlaceOn(BlockState state, BlockGetter getter, BlockPos pos) {
-        return state.is(ModTags.Blocks.FERN_BUSH) || super.mayPlaceOn(state, getter, pos);
+        return state.is(ModTags.Blocks.DUCKWEED) || super.mayPlaceOn(state, getter, pos);
     }
 }

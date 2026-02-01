@@ -11,7 +11,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 import net.mokai.quicksandrehydrated.block.*;
-import net.mokai.quicksandrehydrated.block.Plants.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,13 +32,13 @@ public class ModBlocks {
     //Plant and stuff
 
 
-    public static final RegistryObject<Block> DUCKWEED = registerBlock("duckweed", () -> new Duckweed(BlockBehaviour.Properties.copy(Blocks.MOSS_CARPET).noCollission().replaceable().sound(SoundType.GRASS).instabreak()));
-    public static final RegistryObject<Block> DUCKWEED_FLOWERS = registerBlock("duckweed_flowers", () -> new Duckweed(BlockBehaviour.Properties.copy(Blocks.MOSS_CARPET).noCollission().replaceable().sound(SoundType.GRASS).instabreak()));
-    public static final RegistryObject<Block> PEAT_BOG_BUSH = registerBlock("peat_bog_bush", () -> new PeatBogBush(BlockBehaviour.Properties.copy(Blocks.GRASS)));
-    public static final RegistryObject<Block> FERN_BUSH = registerBlock("fern_bush", () -> new FernBush(BlockBehaviour.Properties.copy(Blocks.GRASS)));
-    public static final RegistryObject<Block> CATTAIL_REEDS = registerBlock("cattails", () -> new Cattails(BlockBehaviour.Properties.copy(Blocks.GRASS)));
-    public static final RegistryObject<Block> BRANCH = registerBlock("muddy_branch", () -> new MuddyBranch(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noCollission().noOcclusion().instabreak()));
-    public static final RegistryObject<Block> CRANBERRY_BUSH = BLOCKS.register("cranberry_bush", () -> new CranBerryBush(BlockBehaviour.Properties.copy(Blocks.SWEET_BERRY_BUSH).noOcclusion()));
+    public static final RegistryObject<Block> DUCKWEED = registerBlock("duckweed", () -> new net.mokai.quicksandrehydrated.block.plants.Duckweed(BlockBehaviour.Properties.copy(Blocks.MOSS_CARPET).noCollission().replaceable().sound(SoundType.GRASS).instabreak()));
+    public static final RegistryObject<Block> DUCKWEED_FLOWERS = registerBlock("duckweed_flowers", () -> new net.mokai.quicksandrehydrated.block.plants.Duckweed(BlockBehaviour.Properties.copy(Blocks.MOSS_CARPET).noCollission().replaceable().sound(SoundType.GRASS).instabreak()));
+    public static final RegistryObject<Block> PEAT_BOG_BUSH = registerBlock("peat_bog_bush", () -> new net.mokai.quicksandrehydrated.block.plants.PeatBogBush(BlockBehaviour.Properties.copy(Blocks.GRASS)));
+    public static final RegistryObject<Block> FERN_BUSH = registerBlock("fern_bush", () -> new net.mokai.quicksandrehydrated.block.plants.FernBush(BlockBehaviour.Properties.copy(Blocks.GRASS)));
+    public static final RegistryObject<Block> CATTAIL_REEDS = registerBlock("cattails", () -> new net.mokai.quicksandrehydrated.block.plants.Cattails(BlockBehaviour.Properties.copy(Blocks.GRASS)));
+    public static final RegistryObject<Block> BRANCH = registerBlock("muddy_branch", () -> new net.mokai.quicksandrehydrated.block.plants.MuddyBranch(BlockBehaviour.Properties.copy(Blocks.OAK_PLANKS).noCollission().noOcclusion().instabreak()));
+    public static final RegistryObject<Block> CRANBERRY_BUSH = BLOCKS.register("cranberry_bush", () -> new net.mokai.quicksandrehydrated.block.plants.CranBerryBush(BlockBehaviour.Properties.copy(Blocks.SWEET_BERRY_BUSH).noOcclusion()));
 
 
 
