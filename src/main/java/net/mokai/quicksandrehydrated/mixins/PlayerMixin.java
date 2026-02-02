@@ -27,7 +27,6 @@ import java.util.UUID;
 @Mixin(Player.class)
 public class PlayerMixin implements playerStruggling {
 
-
     private static final UUID GRAVITY_MODIFIER_QUICKSAND_UUID = UUID.fromString("b8c5b4f6-8188-4466-8239-53c567b11b32");
     private static final AttributeModifier GRAVITY_MODIFIER_QUICKSAND = new AttributeModifier(GRAVITY_MODIFIER_QUICKSAND_UUID, "Quicksand Gravity Cancel", (double)-1.0F, AttributeModifier.Operation.MULTIPLY_BASE);
 
@@ -121,14 +120,6 @@ public class PlayerMixin implements playerStruggling {
         return this.velPosition0.subtract(this.velPosition1);
     }
 
-
-
-
-
-
-
-
-
     /**
      * Save player data when the player is saved
      */
@@ -200,23 +191,6 @@ public class PlayerMixin implements playerStruggling {
             player.displayClientMessage(Component.literal("has quicksand grav modifier"), false);
         }*/
 
-        if (player.level().isClientSide()) {
-
-            boolean keyDown = Keybinding.STRUGGLE_KEY.isDown();
-            boolean flagHolding = strugglingPlayer.getHoldingStruggle();
-
-            if ( keyDown && !flagHolding) {
-                // key IS down this tick, flagHolding is NOT
-                ModMessages.sendToServer(new StruggleDownC2SPacket());
-            }
-            else if ( !keyDown && flagHolding) {
-                // key is NOT DOWN this tick, just released
-                ModMessages.sendToServer(new StruggleReleaseC2SPacket());
-            }
-
-            strugglingPlayer.setHoldingStruggle(keyDown);
-
-        }
 
         // both server AND client
         if (strugglingPlayer.getHoldingStruggle()) {
@@ -226,8 +200,5 @@ public class PlayerMixin implements playerStruggling {
         }
 
     }
-
-
-
 
 }

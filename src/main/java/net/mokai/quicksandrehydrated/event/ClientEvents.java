@@ -5,7 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.client.event.*;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
@@ -17,6 +19,9 @@ import net.mokai.quicksandrehydrated.client.render.coverage.CoverageLayer;
 import net.mokai.quicksandrehydrated.client.render.coverage.PlayerCoverageDefaultModel;
 import net.mokai.quicksandrehydrated.client.render.coverage.PlayerCoverageSlimModel;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
+import net.mokai.quicksandrehydrated.networking.ModMessages;
+import net.mokai.quicksandrehydrated.networking.packet.StruggleDownC2SPacket;
+import net.mokai.quicksandrehydrated.networking.packet.StruggleReleaseC2SPacket;
 import net.mokai.quicksandrehydrated.particle.QuicksandBubbleParticle;
 import net.mokai.quicksandrehydrated.registry.ModModelLayers;
 import net.mokai.quicksandrehydrated.registry.ModParticles;
@@ -25,16 +30,46 @@ import net.mokai.quicksandrehydrated.util.Keybinding;
 import java.io.IOException;
 
 public class ClientEvents {
+
     @Mod.EventBusSubscriber(modid = QuicksandRehydrated.MOD_ID, value = Dist.CLIENT)
     public static class ClientForgeEvents {
+
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
+
             if (Keybinding.STRUGGLE_KEY.isDown()) {
                 ((playerStruggling) Minecraft.getInstance().player).BeginStruggle();
             } else {
                 System.out.println("Struggle key not held");
             }
+
         }
+
+        @SubscribeEvent
+        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
+
+            Player player = event.player;
+            playerStruggling strugglingPlayer = (playerStruggling) player;
+
+            if (player.level().isClientSide()) {
+
+                boolean keyDown = Keybinding.STRUGGLE_KEY.isDown();
+                boolean flagHolding = strugglingPlayer.getHoldingStruggle();
+
+                if (keyDown && !flagHolding) {
+                    // key IS down this tick, flagHolding is NOT
+                    ModMessages.sendToServer(new StruggleDownC2SPacket());
+                } else if (!keyDown && flagHolding) {
+                    // key is NOT DOWN this tick, just released
+                    ModMessages.sendToServer(new StruggleReleaseC2SPacket());
+                }
+
+                strugglingPlayer.setHoldingStruggle(keyDown);
+
+            }
+
+        }
+
     }
 
     @Mod.EventBusSubscriber(modid = QuicksandRehydrated.MOD_ID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -85,7 +120,6 @@ public class ClientEvents {
             // Register quicksand bubble particles
             event.registerSpriteSet(ModParticles.QUICKSAND_BUBBLE_PARTICLES.get(),
                     QuicksandBubbleParticle.Provider::new);
-            
             // Washing particles removed
         }
 
