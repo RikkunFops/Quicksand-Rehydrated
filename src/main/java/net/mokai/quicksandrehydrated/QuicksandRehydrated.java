@@ -3,6 +3,7 @@ package net.mokai.quicksandrehydrated;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -106,9 +107,11 @@ public class QuicksandRehydrated {
         }
         // Previously also had an "instanceof QuicksandBase" check, but I'm not sure if we need that
         if (blockState.is(QUICKSAND_DROWNABLE)) {
-            // Quicksand blocks have an offset from the default height of 1, which at the moment only applies to collisions, and doesn't affect the block visually.
-            // I've intentionally ignored the offset here since drowning should start when the (first-person) camera visually goes under.
-            return Tristate.NO;
+            // Intentionally use the visual height of the block, rather than the colission mark,
+            // since drowning should start when the (first-person) camera visually goes under.
+            double quicksandVisualHeight = blockState.getShape(entity.level(), blockPosition).max(Axis.Y);
+            // System.out.printf("Quicksand Height: %f %f\n", position.y, quicksandVisualHeight);
+            return position.y < blockPosition.getY() + quicksandVisualHeight ? Tristate.NO : Tristate.YES;
         }
         FluidState fluidState = blockState.getFluidState();
         if (fluidState.getFluidType().canDrownIn(entity)) {
