@@ -38,7 +38,8 @@ public class QuicksandBehavior {
     public String secretDeathMessage = "quicksand";
     public double secretDeathMessageChance = 0;
     public double buoyancyPoint = net.mokai.quicksandrehydrated.util.BodyDepthThreshold.KNEE.depth; // Altezza del ginocchio (ridotto ulteriormente)
-    public double offset = 0;
+    // Sinkable substances should be lower than Soulsand and (vanilla) Mud, otherwise you get clunky interactions which aren't fun
+    public double offset = 0.2;
     public double stepOutHeight = net.mokai.quicksandrehydrated.util.BodyDepthThreshold.FEET.depth;
     public double resurfingForce = 0.03; // Default resurfing force
 

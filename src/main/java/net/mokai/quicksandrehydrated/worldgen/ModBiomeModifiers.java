@@ -18,6 +18,7 @@ import net.mokai.quicksandrehydrated.registry.ModPlacedFeatures;
 
 public class ModBiomeModifiers {
     public static final ResourceKey<BiomeModifier> ADD_QUICKSAND_PIT = registerKey("add_quicksand_pit");
+    public static final ResourceKey<BiomeModifier> ADD_MUD_PIT = registerKey("add_mud_pit");
     
     // Tags for desert biomes
     public static final TagKey<Biome> DESERT_BIOMES = TagKey.create(
@@ -34,14 +35,22 @@ public class ModBiomeModifiers {
         // Let's add quicksand pools to all overworld biomes for testing purposes.
         // This will dramatically increase the chance of finding quicksand pools.
         try {
+            var allBomes = biomes.getOrThrow(OVERWORLD_BIOMES);
             context.register(ADD_QUICKSAND_PIT, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
-                    biomes.getOrThrow(OVERWORLD_BIOMES), // We use all biomes of the overworld for testing.
+                    allBomes, // We use all biomes of the overworld for testing.
                     HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.QUICKSAND_PIT_PLACED_KEY)),
                     GenerationStep.Decoration.TOP_LAYER_MODIFICATION
+            ));
+
+            context.register(ADD_MUD_PIT, new ForgeBiomeModifiers.AddFeaturesBiomeModifier(
+                    allBomes, // We use all biomes of the overworld for testing.
+                    HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.QUICKSAND_PIT_PLACED_KEY)),
+                    GenerationStep.Decoration.SURFACE_STRUCTURES
             ));
             
             System.out.println("[ModBiomeModifiers] Registered biome modifier for quicksand pools");
             System.out.println("[ModBiomeModifiers] Feature key: " + ModPlacedFeatures.QUICKSAND_PIT_PLACED_KEY);
+            System.out.println("[ModBiomeModifiers] " + allBomes.toString());
         } catch (Exception e) {
             System.err.println("[ModBiomeModifiers] ERROR while registering the biome modifier: " + e.getMessage());
             e.printStackTrace();

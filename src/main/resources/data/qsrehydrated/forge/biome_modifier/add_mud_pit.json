@@ -1,0 +1,8 @@
+{
+  "type": "forge:add_features",
+  "biomes": [
+    "minecraft:mangrove_swamp"
+  ],
+  "features": "qsrehydrated:mud_pit",
+  "step": "surface_structures"
+}

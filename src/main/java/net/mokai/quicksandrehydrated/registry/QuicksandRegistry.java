@@ -76,6 +76,23 @@ public class QuicksandRegistry {
             .setResurfingForce(0.025); // Moderate resurfing force for mud
 
 
+    // Not that deep, not designed to get stuck stuck in but shoud be a slog to walk through
+    static QuicksandBehavior tidalMudBehaviour = new QuicksandBehavior()
+        .setVertSpeed(0.3)
+        .setWalkSpeed(new ArrayList<>(List.of(
+            Vec2(0.9, 0.0),
+            Vec2(0.9, BodyDepthThreshold.KNEE.depth),
+            // Jumping in will make you sink further than the bouyancy depth and that gets you stuck
+            Vec2(0.0, BodyDepthThreshold.WAIST.depth)
+        )))
+        .setSinkSpeed(0)
+        .setBuoyancyPoint(BodyDepthThreshold.FEET.depth) // Thought it would be KNEE but this gives the visual look I want?
+        // Not the same colour as the tidal_mud texture, but IRL the mud under the surface is often a darker colour
+        // If someone adds footprints / surface disturbance effects to this block to match it'd look great
+        .setCoverageTexture("mud_coverage")
+        .setResurfingForce(0.03);
+
+
     static QuicksandBehavior quickrugSinkable = new QuicksandBehavior()
 
             .setVertSpeed(new ArrayList<>(List.of(Vec2(0.3, 0.0), Vec2(0.1, 0.35/2.0), Vec2(0.05, 1.0/2.0)
@@ -187,6 +204,8 @@ public class QuicksandRegistry {
     public static final RegistryObject<Block> DEEP_MUD = registerBlock("deep_mud", () -> new DeepMudBlock( muddyBlockBehavior.sound(SoundType.MUD), MudBehavior, 1.0d));
     public static final RegistryObject<Block> BOTTOMLESS_MUD = registerBlock("bottomless_mud", () -> new DeepMudBlock( muddyBlockBehavior.sound(SoundType.MUD), MudBehavior, 2.5d));
 
+    public static final RegistryObject<Block> TIDAL_MUD = registerBlock("tidal_mud", () -> new QuicksandBase( muddyBlockBehavior.sound(SoundType.MUD), tidalMudBehaviour));
+
     public static final RegistryObject<Block> SOFT_QUICKSAND = registerBlock("soft_quicksand", () -> new FlowingQuicksandBase(baseFlowingBlockBehavior, new QuicksandBehavior()
             .setBuoyancyPoint(BodyDepthThreshold.ABDOMEN.depth) // Valore di buoyancy per le ginocchia (ridotto da SHOULDERS)
             .setResurfingForce(0.04) // Higher resurfing force for soft quicksand
@@ -223,6 +242,7 @@ public class QuicksandRegistry {
         addItem(SHALLOW_MUD);
         addItem(DEEP_MUD);
         addItem(BOTTOMLESS_MUD);
+        addItem(TIDAL_MUD);
 
         addItem(WHITE_QUICKRUG);
         addItem(ORANGE_QUICKRUG);
