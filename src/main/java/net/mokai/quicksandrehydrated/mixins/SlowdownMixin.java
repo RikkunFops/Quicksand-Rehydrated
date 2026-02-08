@@ -3,15 +3,14 @@ package net.mokai.quicksandrehydrated.mixins;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.mokai.quicksandrehydrated.block.quicksands.core.FlowingQuicksandBase;
 import net.mokai.quicksandrehydrated.block.quicksands.core.QuicksandBase;
 import net.mokai.quicksandrehydrated.entity.data.QuicksandEffectManager;
 import net.mokai.quicksandrehydrated.entity.entityQuicksandVar;
@@ -123,7 +122,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         BlockState pState = pEntity.level().getBlockState(pPos);
         
         // Check that the block is not air before considering it as quicksand.
-        if (pState.isAir() || !(pState.getBlock() instanceof QuicksandBase)) {
+        if (pState.isAir() || !(pState.getBlock() instanceof QuicksandBase quicksand)) {
             return false;
         }
         
@@ -131,48 +130,16 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         if (pEntity.getDeltaMovement().y > 0.05) {
             return false;
         }
-        
-        // Check if the entity is actually in the block
-        double entityY = pEntity.getY();
-        double entityHeight = pEntity.getBbHeight();
-        double entityWidth = pEntity.getBbWidth() / 2.0;
-        
-        // Get block boundaries
-        double blockMinY = pPos.getY();
-        double blockMaxY = pPos.getY() + 1.0;
-        double blockMinX = pPos.getX();
-        double blockMaxX = pPos.getX() + 1.0;
-        double blockMinZ = pPos.getZ();
-        double blockMaxZ = pPos.getZ() + 1.0;
-        
-        // Get entity boundaries
-        double entityMinY = entityY;
-        double entityMaxY = entityY + entityHeight;
-        double entityMinX = pEntity.getX() - entityWidth;
-        double entityMaxX = pEntity.getX() + entityWidth;
-        double entityMinZ = pEntity.getZ() - entityWidth;
-        double entityMaxZ = pEntity.getZ() + entityWidth;
-        
-        // Check if the entity's bounding box intersects with the block
-        boolean intersectsX = entityMaxX > blockMinX && entityMinX < blockMaxX;
-        boolean intersectsY = entityMaxY > blockMinY && entityMinY < blockMaxY;
-        boolean intersectsZ = entityMaxZ > blockMinZ && entityMinZ < blockMaxZ;
-        
-        // The entity is in the block if all three dimensions intersect
-        // Let's add a special control for the upper body
-        if (intersectsX && intersectsZ) {
-            // If the upper body is in the block, we consider the entity to be valid.
-            // even if the bottom part is not
-            double upperBodyY = entityY + entityHeight * 0.5;
-            if (upperBodyY >= blockMinY && upperBodyY <= blockMaxY) {
-                return true;
-            }
-            
-            // Otherwise, we use the standard control.
-            return intersectsY;
-        }
-        
-        return false;
+
+        // Adjust only the surface block to be shorter
+        BlockState blockAbove = pEntity.level().getBlockState(pPos.above());
+        boolean isSurface = blockAbove.isAir() || !(blockAbove.getBlock() instanceof QuicksandBase);
+        double quicksandHeight = isSurface ? 1 - quicksand.getQuicksandBehavior().getOffset() : 1;
+
+        AABB blockBoundingBox = new AABB(pPos).setMaxY(pPos.getY() + quicksandHeight);
+        AABB entityBoundingBox = pEntity.getBoundingBox();
+
+        return entityBoundingBox.intersects(blockBoundingBox);
     }
 
 

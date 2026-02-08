@@ -3,6 +3,7 @@
   "block.qsrehydrated.shallow_mud": "Shallow Mud",
   "block.qsrehydrated.deep_mud": "Deep Mud",
   "block.qsrehydrated.bottomless_mud": "Bottomless Mud",
+  "block.qsrehydrated.tidal_mud": "Tidal Mud",
   "block.qsrehydrated.powder_snow": "Powder Snow",
   "block.qsrehydrated.powder_ash": "Powder Ash",
   "block.qsrehydrated.soft_quicksand":  "Soft quicksand",
@@ -118,6 +119,7 @@
 
 
 
+  "biome.qsrehydrated.mud_flat": "Mudflat",
 
 
 

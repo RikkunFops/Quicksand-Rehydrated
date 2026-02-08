@@ -1,6 +1,7 @@
 package net.mokai.quicksandrehydrated.registry;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -13,10 +14,13 @@ import net.mokai.quicksandrehydrated.worldgen.feature.QuicksandPitFeature;
 
 public class ModFeatures {
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(
-            ForgeRegistries.FEATURES, QuicksandRehydrated.MOD_ID);
+        ForgeRegistries.FEATURES, QuicksandRehydrated.MOD_ID);
 
     public static final RegistryObject<Feature<QuicksandPitConfiguration>> QUICKSAND_PIT = FEATURES.register(
-            "quicksand_pit", () -> new QuicksandPitFeature(QuicksandPitConfiguration.CODEC));
+        "quicksand_pit", () -> new QuicksandPitFeature(QuicksandPitConfiguration.CODEC));
+
+    public static final RegistryObject<Feature<QuicksandPitConfiguration>> MUD_PIT = FEATURES.register(
+        "mud_pit", () -> new QuicksandPitFeature(QuicksandPitConfiguration.CODEC));
 
     public static void register(IEventBus eventBus) {
         FEATURES.register(eventBus);
@@ -26,10 +30,7 @@ public class ModFeatures {
      * Registers the quicksand pit feature for world generation.
      * This is called during the common setup phase.
      */
-    public static void registerWorldGeneration() {
-        // Register the feature for the /place feature command
-        registerFeatureForCommand();
-        
+    public static void registerWorldGeneration() { 
         // The actual world generation is handled by JSON files in:
         // - data/qsrehydrated/worldgen/configured_feature/quicksand_pit.json
         // - data/qsrehydrated/worldgen/placed_feature/quicksand_pit.json
@@ -40,42 +41,25 @@ public class ModFeatures {
         System.out.println("Quicksand pit feature registered for world generation");
         System.out.println("Feature: " + QUICKSAND_PIT.getId());
         System.out.println("Feature instance: " + QUICKSAND_PIT.get());
+        System.out.println("Feature: " + MUD_PIT.getId());
+        System.out.println("Feature instance: " + MUD_PIT.get());
         System.out.println("==============================================");
         
         // Ensure the feature is registered with the correct registry
+        registerConditionally("quicksand_pit", QUICKSAND_PIT);
+        registerConditionally("mud_pit", MUD_PIT);
+    }
+
+    private static void registerConditionally(String name, RegistryObject<Feature<QuicksandPitConfiguration>> feature) {
+        var key = new ResourceLocation(QuicksandRehydrated.MOD_ID, name);
         try {
-            // This ensures the feature is available for world generation
-            if (!net.minecraft.core.registries.BuiltInRegistries.FEATURE.containsKey(
-                    new net.minecraft.resources.ResourceLocation(QuicksandRehydrated.MOD_ID, "quicksand_pit"))) {
-                System.out.println("Registering quicksand pit feature for world generation");
-                Registry.register(net.minecraft.core.registries.BuiltInRegistries.FEATURE, 
-                        new net.minecraft.resources.ResourceLocation(QuicksandRehydrated.MOD_ID, "quicksand_pit"), 
-                        QUICKSAND_PIT.get());
+            if (!BuiltInRegistries.FEATURE.containsKey(key)) {
+                System.out.println("Registering feature for world generation: " + name);
+                Registry.register(BuiltInRegistries.FEATURE, key, feature.get());
             }
         } catch (Exception e) {
             // Log any errors that occur during registration
             System.err.println("Error registering quicksand pit feature for world generation: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-    
-    /**
-     * Registers the quicksand pit feature for the /place feature command.
-     */
-    private static void registerFeatureForCommand() {
-        // In 1.20.1, we need to use the built-in registries for the /place feature command
-        ResourceLocation quicksandPitId = new ResourceLocation(QuicksandRehydrated.MOD_ID, "quicksand_pit");
-        
-        // Log that we're registering the feature
-        System.out.println("Registering quicksand pit feature for /place command: " + quicksandPitId);
-        
-        try {
-            // This ensures the feature is available for the /place feature command
-            Registry.register(net.minecraft.core.registries.BuiltInRegistries.FEATURE, 
-                    quicksandPitId, QUICKSAND_PIT.get());
-        } catch (Exception e) {
-            // Log any errors that occur during registration
-            System.err.println("Error registering quicksand pit feature: " + e.getMessage());
             e.printStackTrace();
         }
     }
