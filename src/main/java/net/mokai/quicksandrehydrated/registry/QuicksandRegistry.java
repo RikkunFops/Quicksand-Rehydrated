@@ -59,7 +59,7 @@ public class QuicksandRegistry {
     private final static BlockBehaviour.Properties woolBlockBehavior = copyBlockProps(Blocks.WHITE_WOOL).friction(1.0F).strength(2.5F);
 
     private static BlockBehaviour.Properties copyBlockProps(Block block) {
-        return BlockBehaviour.Properties.copy(Blocks.SAND).noCollission().forceSolidOn().isViewBlocking((A, B, C) -> true);
+        return BlockBehaviour.Properties.copy(block).noCollission().forceSolidOn().isViewBlocking((A, B, C) -> true);
     }
 
     // --------------------------------- Quicksand properties -----------------------------
