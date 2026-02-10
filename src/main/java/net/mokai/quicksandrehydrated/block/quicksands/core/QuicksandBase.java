@@ -1,6 +1,7 @@
 package net.mokai.quicksandrehydrated.block.quicksands.core;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -576,11 +577,35 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         return Shapes.block();
     }
 
-    public boolean checkDrownable(BlockState pState) {
-        return pState.getTags().toList().contains(QUICKSAND_DROWNABLE)
-                || pState.getFluidState().getTags().toList().contains(QUICKSAND_DROWNABLE_FLUID);
+    /**
+     * Ensures the camera can pass through the block, which means third person view works properly when the player is submerged.
+     * Declared final because I don't want people to accidentally override this without reading this comment lol.
+     */
+    @Override
+    final public VoxelShape getVisualShape(BlockState pState, BlockGetter pReader, BlockPos pPos, CollisionContext pContext) {
+        return Shapes.empty();
     }
 
+    /**
+     * Need this to make sure quicksand blocks actually cast shadows + block light.
+     * Value taken from the vanilla Mud block.
+     */
+    @Override
+    public float getShadeBrightness(BlockState p_221552_, BlockGetter p_221553_, BlockPos p_221554_) {
+        return 0.2F;
+    }
 
+    /**
+     * Stolen from net.minecraft.world.level.block.HalfTransparentBlock
+     * Avoid rendering faces between two blocks of quicksand
+     * Normally these get culled, but getVisualShape being empty stops that from happening, so we have to do it ourselves
+     */
+    public boolean skipRendering(BlockState someOtherBlockState, BlockState blockState, Direction direction) {
+        return blockState.is(this) ? true : super.skipRendering(someOtherBlockState, blockState, direction);
+    }
 
+    public boolean checkDrownable(BlockState pState) {
+        return pState.getTags().toList().contains(QUICKSAND_DROWNABLE)
+            || pState.getFluidState().getTags().toList().contains(QUICKSAND_DROWNABLE_FLUID);
+    }
 }

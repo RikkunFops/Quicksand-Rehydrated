@@ -39,7 +39,7 @@ public class FlowingQuicksandBase extends QuicksandBase implements QuicksandInte
         if (state == null) return 0.0;
         if (state.getBlock() != this) return 0.0;
         if (!state.hasProperty(LEVEL)) return 0.0;
-        return (1.0 - (state.getValue(LEVEL) / 4.0)) - QSBehavior.getOffset();
+        return (1.0 - (state.getValue(LEVEL) / 4.0)) + QSBehavior.getOffset();
     }
 
     public double getCoverageFraction(BlockState state) {
@@ -97,6 +97,9 @@ public class FlowingQuicksandBase extends QuicksandBase implements QuicksandInte
             Block.box(0, 0, 0, 16, 16, 16)
     };
 
+    // Yeah I'm a bit surprised at this one myself tbh
+    protected static final float[] SHADE_BRIGHTNESS_BY_LEVEL = new float[]{1.0f, 1.0f, 1.0f, 1.0f, 0.2f};
+
     @Override
     public VoxelShape getOcclusionShape(BlockState pState, BlockGetter pLevel, BlockPos pPos) {
         return SHAPE_BY_LEVEL[pState.getValue(LEVEL)];
@@ -118,8 +121,16 @@ public class FlowingQuicksandBase extends QuicksandBase implements QuicksandInte
     }
 
     @Override
-    public VoxelShape getVisualShape(BlockState pState, BlockGetter pReader, BlockPos pPos, CollisionContext pContext) {
-        return SHAPE_BY_LEVEL[pState.getValue(LEVEL)];
+    public float getShadeBrightness(BlockState pState, BlockGetter pReader, BlockPos pPos) {
+        return SHADE_BRIGHTNESS_BY_LEVEL[pState.getValue(LEVEL)];
+    }
+
+    /**
+     * QuicksandBase culls internal faces, but since we have blocks of varying heights, if we did that we'd have holes.
+     * Maybe there's something smart we can do here but I can't think of it right now.
+     */
+    public boolean skipRendering(BlockState blockStateA, BlockState blockStateB, Direction direction) {
+        return false;
     }
 
     @Override
