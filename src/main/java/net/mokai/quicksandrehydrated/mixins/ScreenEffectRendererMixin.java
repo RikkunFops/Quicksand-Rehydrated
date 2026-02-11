@@ -13,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.mokai.quicksandrehydrated.util.CameraBoxDimensions;
@@ -35,27 +38,52 @@ public abstract class ScreenEffectRendererMixin {
     @SuppressWarnings("unused")
     @Nullable
     private static Pair<BlockState, BlockPos> getOverlayBlock(Player player) {
-        // Original implementation uses a MutableBlockPos, possibly for performance reasons?
-        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
-        double w = CameraBoxDimensions.HALF_WIDTH;
-        double h = CameraBoxDimensions.HALF_HEIGHT;
-        // Imagine a small box where the player's eye is.
-        // We check each corner of this box to see if it's inside a block. If it is, we obscure the screen.
-        for (int i = 0; i < 8; ++i) {
-            // Originally, the x and z axis were using player.getBbWidth() * 0.8 which is way larger than we wanted lol
-            double x = ((i & 1) == 0 ? -w : w) + player.getX();
-            double y = ((i & 2) == 0 ? -h : h) + player.getEyeY();
-            double z = ((i & 4) == 0 ? -w : w) + player.getZ();
-            mutableBlockPos.set(x, y, z);
-            BlockState blockState = player.level().getBlockState(mutableBlockPos);
-            if (blockState.getRenderShape() != RenderShape.INVISIBLE && blockState.isViewBlocking(player.level(), mutableBlockPos)) {
-                // Need to handle view blocking blocks which aren't a full block (vanilla doesn't have any of these)
-                // Currently only works if they're some form of cube or rectangular prism
-                if (blockState.getShape(player.level(), mutableBlockPos).bounds().move(mutableBlockPos).contains(x, y, z)) {
-                    return Pair.of(blockState, mutableBlockPos.immutable());
-                }
-            }
+        // Unaltered hitbox for suffocation. It's larger so we check this one first
+        // Dimensions + condition check taken from Entity.java:isInWall
+        var suffocatingIn = getOverlayBlockFor(player, player.getBbWidth() * 0.8d, 1.0e-6d, (blockState, blockPos, aabb) ->
+            !blockState.isAir()
+            && blockState.isSuffocating(player.level(), blockPos)
+            && (
+                Shapes.joinIsNotEmpty(
+                    blockState.getCollisionShape(player.level(), blockPos).move(
+                        (double)blockPos.getX(),
+                        (double)blockPos.getY(),
+                        (double)blockPos.getZ()
+                    ),
+                    Shapes.create(aabb),
+                    BooleanOp.AND
+                )
+            )
+        );
+        if (suffocatingIn != null) {
+            return suffocatingIn;
+        }
+        // Smaller, customised hitbox for drowning, check it second
+        var drowningIn = getOverlayBlockFor(player, CameraBoxDimensions.FULL_WIDTH, CameraBoxDimensions.FULL_HEIGHT, (blockState, blockPos, aabb) ->
+            blockState.getRenderShape() != RenderShape.INVISIBLE
+            && blockState.isViewBlocking(player.level(), blockPos)
+            // Need to handle view blocking blocks which aren't a full block (vanilla doesn't have any of these)
+            // Currently only works if they're some form of cube or rectangular prism
+            && blockState.getShape(player.level(), blockPos).bounds().move(blockPos).intersects(aabb)
+        );
+        if (drowningIn != null) {
+            return drowningIn;
         }
         return null;
+    }
+
+    @Nullable
+    private static Pair<BlockState, BlockPos> getOverlayBlockFor(Player player, double w, double h, Predicate condition) {
+        AABB aabb = AABB.ofSize(player.getEyePosition(), w, h, w);
+        return BlockPos
+            .betweenClosedStream(aabb)
+            .map(blockPos -> Pair.of(player.level().getBlockState(blockPos), blockPos))
+            .filter(pair -> condition.test(pair.getLeft(), pair.getRight(), aabb))
+            .findFirst()
+            .orElse(null);
+    }
+
+    static interface Predicate {
+        boolean test(BlockState blockState, BlockPos blockPos, AABB aabb);
     }
 }
