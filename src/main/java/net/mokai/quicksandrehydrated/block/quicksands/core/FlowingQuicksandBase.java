@@ -125,14 +125,6 @@ public class FlowingQuicksandBase extends QuicksandBase implements QuicksandInte
         return SHADE_BRIGHTNESS_BY_LEVEL[pState.getValue(LEVEL)];
     }
 
-    /**
-     * QuicksandBase culls internal faces, but since we have blocks of varying heights, if we did that we'd have holes.
-     * Maybe there's something smart we can do here but I can't think of it right now.
-     */
-    public boolean skipRendering(BlockState blockStateA, BlockState blockStateB, Direction direction) {
-        return false;
-    }
-
     @Override
     public boolean canBeReplaced(BlockState pState, BlockPlaceContext pUseContext) {
         int current_level = pState.getValue(LEVEL);

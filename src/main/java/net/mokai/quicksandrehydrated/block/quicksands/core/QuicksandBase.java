@@ -595,15 +595,6 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         return 0.2F;
     }
 
-    /**
-     * Stolen from net.minecraft.world.level.block.HalfTransparentBlock
-     * Avoid rendering faces between two blocks of quicksand
-     * Normally these get culled, but getVisualShape being empty stops that from happening, so we have to do it ourselves
-     */
-    public boolean skipRendering(BlockState someOtherBlockState, BlockState blockState, Direction direction) {
-        return blockState.is(this) ? true : super.skipRendering(someOtherBlockState, blockState, direction);
-    }
-
     public boolean checkDrownable(BlockState pState) {
         return pState.getTags().toList().contains(QUICKSAND_DROWNABLE)
             || pState.getFluidState().getTags().toList().contains(QUICKSAND_DROWNABLE_FLUID);
