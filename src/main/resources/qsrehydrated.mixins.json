@@ -9,7 +9,8 @@
     "FallingBlockEntityMixin",
     "CanOccludeMixin",
     "SlowdownMixin",
-    "PlayerRendererMixin"
+    "PlayerRendererMixin",
+    "ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

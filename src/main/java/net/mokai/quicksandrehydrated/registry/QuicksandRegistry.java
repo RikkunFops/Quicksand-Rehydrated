@@ -52,18 +52,15 @@ public class QuicksandRegistry {
      */
     // --------------------------------- Block properties -----------------------------
 
+    private final static BlockBehaviour.Properties baseBlockBehavior = copyBlockProps(Blocks.SAND).requiresCorrectToolForDrops();
+    private final static BlockBehaviour.Properties muddyBlockBehavior = copyBlockProps(Blocks.MUD).requiresCorrectToolForDrops();
+    private final static BlockBehaviour.Properties baseFlowingBlockBehavior = copyBlockProps(Blocks.SAND).requiresCorrectToolForDrops();
+    private final static BlockBehaviour.Properties slimeBlockBehavior = copyBlockProps(Blocks.SLIME_BLOCK).friction(1.0F).strength(2.5F);
+    private final static BlockBehaviour.Properties woolBlockBehavior = copyBlockProps(Blocks.WHITE_WOOL).friction(1.0F).strength(2.5F);
 
-    private final static BlockBehaviour.Properties baseBlockBehavior = BlockBehaviour.Properties.copy(Blocks.SAND).noCollission().requiresCorrectToolForDrops()
-            .noOcclusion().isViewBlocking((A, B, C) -> true).forceSolidOn();
-    private final static BlockBehaviour.Properties muddyBlockBehavior = BlockBehaviour.Properties.copy(Blocks.MUD).noCollission().requiresCorrectToolForDrops()
-            .noOcclusion().isViewBlocking((A, B, C) -> true).forceSolidOn();
-    private final static BlockBehaviour.Properties baseFlowingBlockBehavior = BlockBehaviour.Properties.copy(Blocks.SAND).noCollission().requiresCorrectToolForDrops()
-            .noOcclusion().isViewBlocking((A, B, C) -> A.getValue(FlowingQuicksandBase.LEVEL) >= 4).forceSolidOn();
-    private final static BlockBehaviour.Properties slimeBlockBehavior = BlockBehaviour.Properties.copy(Blocks.SLIME_BLOCK).noCollission()
-            .noOcclusion().isViewBlocking((A, B, C) -> true).friction(1.0F).strength(2.5F).forceSolidOn();
-    private final static BlockBehaviour.Properties woolBlockBehavior = BlockBehaviour.Properties.copy(Blocks.WHITE_WOOL).noCollission()
-            .noOcclusion().isViewBlocking((A, B, C) -> true).friction(1.0F).strength(2.5F).forceSolidOn();
-
+    private static BlockBehaviour.Properties copyBlockProps(Block block) {
+        return BlockBehaviour.Properties.copy(block).noCollission().forceSolidOn().isViewBlocking((A, B, C) -> true);
+    }
 
     // --------------------------------- Quicksand properties -----------------------------
 

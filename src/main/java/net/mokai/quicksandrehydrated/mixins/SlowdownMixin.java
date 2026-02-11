@@ -134,7 +134,7 @@ public abstract class SlowdownMixin implements entityQuicksandVar {
         // Adjust only the surface block to be shorter
         BlockState blockAbove = pEntity.level().getBlockState(pPos.above());
         boolean isSurface = blockAbove.isAir() || !(blockAbove.getBlock() instanceof QuicksandBase);
-        double quicksandHeight = isSurface ? 1 - quicksand.getQuicksandBehavior().getOffset() : 1;
+        double quicksandHeight = isSurface ? 1 - quicksand.getOffset(pState) : 1;
 
         AABB blockBoundingBox = new AABB(pPos).setMaxY(pPos.getY() + quicksandHeight);
         AABB entityBoundingBox = pEntity.getBoundingBox();

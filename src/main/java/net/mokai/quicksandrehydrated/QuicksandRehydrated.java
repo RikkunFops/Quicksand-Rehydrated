@@ -3,7 +3,6 @@ package net.mokai.quicksandrehydrated;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -11,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
@@ -27,7 +27,7 @@ import net.mokai.quicksandrehydrated.networking.ModMessages;
 import net.mokai.quicksandrehydrated.registry.*;
 import net.mokai.quicksandrehydrated.screen.MixerScreen;
 import net.mokai.quicksandrehydrated.screen.ModMenuTypes;
-import net.mokai.quicksandrehydrated.util.Tristate;
+import net.mokai.quicksandrehydrated.util.CameraBoxDimensions;
 import net.mokai.quicksandrehydrated.worldgen.ModRegion;
 import net.mokai.quicksandrehydrated.worldgen.ModSurfaceRuleData;
 import net.mokai.quicksandrehydrated.worldgen.placement.ModPlacementModifierTypes;
@@ -94,40 +94,50 @@ public class QuicksandRehydrated {
         }
     }
 
-    private static Tristate entityCanBreatheWithOffset(LivingEntity entity, double upwardsYOffset) {
-        // Screen goes dark when the eye position is ~0.05 units above the quicksand block, so we adjust drowning behavior to match
-        // Found this value by experimentation and logging, couldn't actually find the code that handles the screen going dark, so this is an educated guess
-        // If anyone gets a better measurement or finds a definitive source for this value please update it
-        double cameraYOffset = -0.05;
-        Vec3 position = entity.getEyePosition().relative(Direction.UP, upwardsYOffset + cameraYOffset);
-        BlockPos blockPosition = BlockPos.containing(position);
-        BlockState blockState = entity.level().getBlockState(blockPosition);
+
+    // Used to check whether the *first-person camera* is inside a block of quicksand
+    // We use this as the main mechanism to determine if we're drowning or not
+    private static boolean boxOverlapsQuicksandBlock(Level level, AABB box) {
+        BlockPos minXYZ = BlockPos.containing(box.minX, box.minY, box.minZ);
+        BlockPos maxXYZ = BlockPos.containing(box.maxX, box.maxY, box.maxZ);
+        for (BlockPos blockPos: BlockPos.betweenClosed(minXYZ, maxXYZ)) {
+            BlockState blockState = level.getBlockState(blockPos);
+            // Previously also had an "instanceof QuicksandBase" check, but I'm not sure if we need that
+            if (!blockState.isAir() && blockState.is(QUICKSAND_DROWNABLE)) {
+                // Intentionally use the visual bounds of the block, rather than the colission mark.
+                // Assumes the quicksand shape is some kindof cube / rectangular prism
+                AABB boundingBox = blockState.getShape(level, blockPos).bounds().move(blockPos);
+                if (boundingBox.intersects(box)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    // Used to check for "bonus" air such as the snorkel and reed
+    private static boolean hasBonusAirAt(LivingEntity entity, double yOffset) {
+        var level = entity.level();
+        Vec3 position = entity.getEyePosition().relative(Direction.UP, yOffset);
+        BlockPos blockPos = BlockPos.containing(position);
+        BlockState blockState = level.getBlockState(blockPos);
         if (blockState.isAir()) {
-            return Tristate.YES;
+            return true;
         }
         // Previously also had an "instanceof QuicksandBase" check, but I'm not sure if we need that
         if (blockState.is(QUICKSAND_DROWNABLE)) {
-            // Intentionally use the visual height of the block, rather than the colission mark,
-            // since drowning should start when the (first-person) camera visually goes under.
-            double quicksandVisualHeight = blockState.getShape(entity.level(), blockPosition).max(Axis.Y);
-            // System.out.printf("Quicksand Height: %f %f\n", position.y, quicksandVisualHeight);
-            return position.y < blockPosition.getY() + quicksandVisualHeight ? Tristate.NO : Tristate.YES;
+            // Assumes the quicksand is a box
+            AABB boundingBox = blockState.getShape(level, blockPos).bounds().move(blockPos);
+            return !boundingBox.contains(position);
         }
         FluidState fluidState = blockState.getFluidState();
         if (fluidState.getFluidType().canDrownIn(entity)) {
-            // Trying to match minecraft's behavior, but there seems to be a mismatch for water height
-            // Apparently need to add a small amount to the fluid's height to compensate?
-            // Notably, minecraft says you start drowning *before* the camera actually goes under.
-            // Measured this out while testing with Water (both source blocks and flowing water at all heights)
-            // Haven't tested if this impacts other fluids
-            // If anyone gets a better measurement or finds a definitive source for this value please update it
-            double liquidHeightOffset = 0.05;
-            // System.out.printf("Fluid Height: %f %f\n", position.y - blockPosition.getY(), fluidState.getOwnHeight());
-            return (position.y < blockPosition.getY() + fluidState.getOwnHeight() + liquidHeightOffset) ? Tristate.NO : Tristate.YES;
+            // Can breathe if we're above the surface of the fluid, otherwise not
+            return position.y > blockPos.getY() + fluidState.getOwnHeight();
         }
-        // Some other situation, assume that minecraft's built in drowning and any other mods will handle it
-        // TODO: Non-solid "breathable" blocks like signs will hit this point, should work on handling this in case the snorkel is sitting in one
-        return Tristate.MAYBE;
+        // For everything else, we can breathe in non-solid blocks like signs
+        return !blockState.isSolid();
     }
 
     private static boolean entityIsHoldingReed(LivingEntity entity) {
@@ -164,35 +174,26 @@ public class QuicksandRehydrated {
             double reedHeight = 2;
             double snorkelHeight = 1.5; // SET TO BE CONFIGURABLE
 
-            Tristate canBreathNormally = entityCanBreatheWithOffset(entity, 0);
-            boolean canBreatheThroughReed = entityIsHoldingReed(entity) && entityCanBreatheWithOffset(entity, reedHeight) == Tristate.YES;
-            boolean canBreatheThroughSnokel = entityIsWearingSnorkel(entity) && entityCanBreatheWithOffset(entity, snorkelHeight) == Tristate.YES;
+            boolean canBreatheThroughReed = entityIsHoldingReed(entity) && hasBonusAirAt(entity, reedHeight);
+            boolean canBreatheThroughSnokel = entityIsWearingSnorkel(entity) && hasBonusAirAt(entity, snorkelHeight);
 
-            // if (entity instanceof Player) {
-            //     double eyesAboveBlock = entity.getEyeY() - Math.floor(entity.getEyeY());
-            //     System.out.printf(
-            //         "onLivingBreatheEvent: event.canBreathe: %b, event.canRefillAir: %b, canBreathNormally: %s, canBreatheThroughReed: %b, canBreatheThroughSnokel: %b, eyesAboveBlock: %f\n",
-            //         event.canBreathe(),
-            //         event.canRefillAir(),
-            //         canBreathNormally.name(),
-            //         canBreatheThroughReed,
-            //         canBreatheThroughSnokel,
-            //         eyesAboveBlock
-            //     );
-            // }
-
-            if (canBreatheThroughReed || canBreatheThroughSnokel || canBreathNormally == Tristate.YES) {
+            if (canBreatheThroughReed || canBreatheThroughSnokel) {
                 // If we're certain we have a source of air, we can breathe
                 event.setCanBreathe(true);
                 event.setCanRefillAir(true);
-            } else if (canBreathNormally == Tristate.NO) {
-                // We're definitely suffocating, mrrrrhf~
-                event.setCanBreathe(false);
-                event.setCanRefillAir(false);
+            } else {
+                double w = CameraBoxDimensions.FULL_WIDTH;
+                double h = CameraBoxDimensions.FULL_HEIGHT;
+                AABB cameraBox = AABB.ofSize(entity.getEyePosition(), w, h, w);
+                if (boxOverlapsQuicksandBlock(entity.level(), cameraBox)) {
+                    // We're definitely suffocating, mrrrrhf~
+                    event.setCanBreathe(false);
+                    event.setCanRefillAir(false);
+                }
             }
 
-            // canBreathNormally is MAYBE
-            // Got a situation we're not sure about, don't modify the event at all and assume something else handles it
+            // We're in some other situation. Don't modify the event at all and assume something else handles it
+            // (e.g. drowning in water is already handled by the game)
         }
         
         @SubscribeEvent
