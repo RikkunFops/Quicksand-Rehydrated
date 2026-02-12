@@ -32,5 +32,5 @@ jobs:
         commit: ${{ github.sha }}                # point tag to the current commit
         artifacts: "build/libs/*.jar"
         name: "Automated release ${{ github.run_number }}"
-        body: "Might be unstable, this is an automatic build, the something-all.jar is used by developers, you probably want the second one"
+        body: "This is an automated build based on the latest push; it is highly unstable, and there WILL be bugs. We recommend you do not use this release for modpacks or survival playthroughs.\nThe file titled _____-all.jar is used by developers, use the other file."
         prerelease: true
