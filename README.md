@@ -2,6 +2,8 @@ Quicksand-Rehydrated
 ====
 Quicksand Rehydrated is a mod that adds, well... quicksand! It's a reimagining of the 1.7.10 mod *More Fun Quicksand Mod*, with more in-*depth* escape mechanics, and rebalancing to make the mod suitable for a Survival experience.
 
+Quicksand Rehydrated and all associated mods are for Minecraft Forge 1.20.1.
+
 
 
 Down the line, we plan to add several companion mods:
