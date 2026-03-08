@@ -1,0 +1,93 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - Quicksand Mod Minecraft",
+        "order": 0
+      },
+      "projectName": "Quicksand Mod Minecraft",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dexamplemod%%E:\\Quicksand Mod Minecraft\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Data",
+      "presentation": {
+        "group": "Mod Development - Quicksand Mod Minecraft",
+        "order": 1
+      },
+      "projectName": "Quicksand Mod Minecraft",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\dataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dexamplemod%%E:\\Quicksand Mod Minecraft\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "GameTestServer",
+      "presentation": {
+        "group": "Mod Development - Quicksand Mod Minecraft",
+        "order": 2
+      },
+      "projectName": "Quicksand Mod Minecraft",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\gameTestServerRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003dexamplemod%%E:\\Quicksand Mod Minecraft\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - Quicksand Mod Minecraft",
+        "order": 3
+      },
+      "projectName": "Quicksand Mod Minecraft",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@E:\\Quicksand Mod Minecraft\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dexamplemod%%E:\\Quicksand Mod Minecraft\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}

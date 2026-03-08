@@ -1,0 +1,32 @@
+# mods.toml for NeoForge 1.21
+
+modLoader = "neoforge"              # NeoForge mod loader
+loaderVersion = "[1.0,)"            # NeoForge version range
+license = "GNU Lesser General Public License 3.0"
+
+[[mods]]
+modId = "qsrehydrated"
+version = "0.0.1 MC1.20.1"
+displayName = "Quicksand Rehydrated"
+description = """
+Quicksand Rehydrated is a Minecraft mod that adds custom fluid mechanics, mobs, and blocks.
+"""
+authors = ["RikkunFops","QSRehydrated Team"]             # Replace with actual author(s)
+displayURL = ""                      # Optional homepage
+updateJSONURL = ""                   # Optional JSON update URL
+logoFile = ""                        # Optional logo in mod jar
+credits = ""                         # Optional credits field
+
+[[dependencies.qsrehydrated]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.21.1,1.22)"  
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.qsrehydrated]]
+modId = "terrablender"
+mandatory = true
+versionRange = "[1.0,)"
+ordering = "NONE"
+side = "BOTH"
