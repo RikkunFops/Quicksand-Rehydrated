@@ -1,5 +1,6 @@
 package net.mokai.quicksandrehydrated.networking;
 
+import net.minecraft.world.entity.Entity;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 import net.mokai.quicksandrehydrated.networking.packet.*;
 import net.minecraft.resources.ResourceLocation;
@@ -69,6 +70,12 @@ public class ModMessages {
                 .consumerMainThread(StruggleReleaseC2SPacket::handle)
                 .add();
 
+        net.messageBuilder(CoverageSyncS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CoverageSyncS2CPacket::new)
+                .encoder(CoverageSyncS2CPacket::toBytes)
+                .consumerMainThread(CoverageSyncS2CPacket::handle)
+                .add();
+
     }
 
     public static <MSG> void sendToServer(MSG message) {
@@ -82,4 +89,9 @@ public class ModMessages {
     public static <MSG> void sendToClients(MSG message) {
         INSTANCE.send(PacketDistributor.ALL.noArg(), message);
     }
+
+    public static <MSG> void sendToClientTrackingAndSelf(MSG message, Entity entity) {
+        INSTANCE.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> entity), message);
+    }
+
 }

@@ -73,7 +73,7 @@ public class CoverageSerializer {
         }
         
         // Mark the coverage as needing an update
-        coverage.requiresUpdate = true;
+        coverage.markDirty();
         
         return coverage;
     }

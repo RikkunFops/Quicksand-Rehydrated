@@ -174,7 +174,7 @@ public class WashingSystem {
         }
         
         // Mark coverage for update
-        coverage.requiresUpdate = true;
+        coverage.markDirty();
     }
     
     /**
@@ -189,7 +189,7 @@ public class WashingSystem {
         // Simplified approach: if immersion is high enough, just clear all coverage
         if (immersionLevel >= 0.9) {
             coverage.coverageEntries.clear();
-            coverage.requiresUpdate = true;
+            coverage.markDirty();
             return;
         }
         
@@ -230,7 +230,7 @@ public class WashingSystem {
         coverage.coverageEntries.removeAll(entriesToRemove);
         
         // Mark coverage for update
-        coverage.requiresUpdate = true;
+        coverage.markDirty();
     }
     
     /**

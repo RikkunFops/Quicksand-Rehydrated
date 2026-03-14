@@ -1,6 +1,7 @@
 package net.mokai.quicksandrehydrated.entity;
 
 import net.minecraft.world.phys.Vec3;
+import net.mokai.quicksandrehydrated.entity.coverage.CoverageEntry;
 import net.mokai.quicksandrehydrated.entity.coverage.PlayerCoverage;
 
 public interface playerStruggling {
@@ -11,6 +12,12 @@ public interface playerStruggling {
     PlayerCoverage coveragePercent = null;
 
     PlayerCoverage getCoverage();
+
+    void addCoverage(CoverageEntry entry);
+    void replaceCoverage(PlayerCoverage newCoverage);
+
+    // TODO find a better place for this ... change CoverageSerializer to CoverageUtil file?
+    void syncCoverage();
 
 //    void setCoveragePercent(double set);
 

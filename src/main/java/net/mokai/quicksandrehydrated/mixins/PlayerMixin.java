@@ -9,11 +9,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.mokai.quicksandrehydrated.block.quicksands.core.QuicksandBase;
+import net.mokai.quicksandrehydrated.entity.coverage.CoverageEntry;
 import net.mokai.quicksandrehydrated.entity.coverage.CoverageSerializer;
 import net.mokai.quicksandrehydrated.entity.coverage.PlayerCoverage;
 import net.mokai.quicksandrehydrated.entity.entityQuicksandVar;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
 import net.mokai.quicksandrehydrated.networking.ModMessages;
+import net.mokai.quicksandrehydrated.networking.packet.CoverageSyncS2CPacket;
 import net.mokai.quicksandrehydrated.networking.packet.StruggleDownC2SPacket;
 import net.mokai.quicksandrehydrated.networking.packet.StruggleReleaseC2SPacket;
 import net.mokai.quicksandrehydrated.util.Keybinding;
@@ -35,10 +37,33 @@ public class PlayerMixin implements playerStruggling {
     public PlayerCoverage getCoverage() {
         return this.coverage;
     }
-    String coverageTexture = "textures/entity/coverage/quicksand_coverage.png";
 
-    public String getCoverageTexture() {return coverageTexture;}
-    public void setCoverageTexture(String set) {this.coverageTexture = set;}
+    public void addCoverage(CoverageEntry entry) {
+
+        Player player = (Player) (Object) this;
+
+        this.coverage.addCoverageEntry(entry);
+
+    }
+
+    public void replaceCoverage(PlayerCoverage newCoverage) {
+        this.coverage.copyFrom(newCoverage);
+    }
+    public void syncCoverage() {
+        Player player = (Player) (Object) this;
+
+        // only the server can sync. From Server, to Client
+        if (!player.level().isClientSide) {
+
+            ModMessages.sendToClientTrackingAndSelf(
+                    new CoverageSyncS2CPacket(player.getId(), this.coverage), // msg
+                    player // entity
+            );
+        }
+
+    }
+
+
 
 
 
@@ -145,6 +170,7 @@ public class PlayerMixin implements playerStruggling {
             if (compound.contains("qsrehydrated_coverage")) {
                 CompoundTag coverageTag = compound.getCompound("qsrehydrated_coverage");
                 this.coverage = CoverageSerializer.deserializeCoverage(coverageTag);
+                this.coverage.markDirty();
             }
         } catch (Exception e) {
             // Log error but don't crash the game
@@ -157,6 +183,16 @@ public class PlayerMixin implements playerStruggling {
     @Inject(method = "tick", at = @At("HEAD"))
     public void tickStruggleCooldown(CallbackInfo ci)
     {
+        // if coverage has changed, send packet
+        // only runs on servers
+        if (this.coverage.requiresUpdate) {
+            syncCoverage();
+        }
+        // this is what this variable is for - this is where it's 'consumed'
+        // this should be the *only* place it's set to false.
+        this.coverage.requiresUpdate = false;
+
+
 
         Player player = (Player)(Object) this;
         this.velPosition1 = this.velPosition0; // 1 = previous

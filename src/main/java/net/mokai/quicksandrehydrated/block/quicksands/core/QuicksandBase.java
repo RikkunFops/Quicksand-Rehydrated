@@ -244,7 +244,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
 
         // Apply coverage only for players
         if (pEntity instanceof Player) {
-            trySetCoverage(pEntity);
+            tryApplyCoverage(pPos, pEntity);
         }
 
         // Check if we are at the buoyancy point or beyond
@@ -273,82 +273,8 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         pEntity.resetFallDistance();
     }
 
-    public void trySetCoverage(Entity pEntity) {
-        // Set a section of coverage at the surface level of the block
-        // Now with optimization to avoid unnecessary updates
-
-        if (pEntity instanceof Player) {
-            playerStruggling pS = (playerStruggling) pEntity;
-            PlayerCoverage pC = pS.getCoverage();
-            
-            if (pC == null) return;
-
-            // Get the correct depth
-            double depth = getDepth(pEntity.level(), pEntity.blockPosition(), pEntity);
-            
-            // If the depth is too small, don't apply coverage
-            if (depth < 0.05) return;
-            
-            // Calculate the surface of the quicksand block with greater precision
-            BlockPos blockPos = pEntity.blockPosition();
-            BlockState blockState = pEntity.level().getBlockState(blockPos);
-            double offset = getOffset(blockState);
-            double surfaceY = blockPos.getY() + 1.0 - offset; // Block surface
-            
-            double entityY = pEntity.getY();
-            double entityHeight = pEntity.getBbHeight();
-            
-            // Calculate where the block surface intersects the player model (scale 0-32)
-            // 0 is the feet, 32 is the head
-            // We use a more precise formula that takes into account the actual height of the player
-            double surfacePoint = ((surfaceY - entityY) / entityHeight) * 32.0;
-            
-            // We calculate the surface point more precisely
-            // We no longer force a minimum value to allow precise alignment with the block surface
-            
-            // Limit to a valid range
-            int surfacePixel = (int) clamp(surfacePoint, 0, 32);
-            
-            // Surface-based approach:
-            // 1. Always start from the feet (0)
-            // 2. End exactly at the surface
-            int begin = 0; // Always start from the feet
-            int end = surfacePixel; // End exactly at the surface
-            
-            // We no longer add a margin above the surface
-            // to perfectly align the coverage with the block surface
-            
-            // If the player is completely submerged, cover the entire body
-            if (depth >= entityHeight) {
-                end = 32; // Up to the head
-            }
-            
-            // Make sure the range is valid
-            begin = clamp(begin, 0, 31);
-            end = clamp(end, begin + 1, 32);
-
-            // Check if we already have an entry with the same values to avoid unnecessary updates
-            ResourceLocation tex = new ResourceLocation(QuicksandRehydrated.MOD_ID, QSBehavior.getCoverageTex());
-            
-            // Check if an update is needed
-            boolean needsUpdate = true;
-            
-            // Look for an existing entry with the same texture and a similar range
-            for (CoverageEntry entry : pC.coverageEntries) {
-                if (entry.texture.equals(tex) && entry.begin == begin && Math.abs(entry.end - end) <= 1) {
-                    // We already have a very similar entry, no need to update
-                    needsUpdate = false;
-                    break;
-                }
-            }
-            
-            if (needsUpdate) {
-                pC.addCoverageEntry(new CoverageEntry(begin, end, tex));
-            }
-        }
-    }
     public void firstTouch(BlockPos pPos, Entity pEntity, Level pLevel) {
-        trySetCoverage(pEntity);
+//        trySetCoverage(pEntity);
         entityQuicksandVar es = (entityQuicksandVar) pEntity;
 
         QuicksandBehavior qb = getQuicksandBehavior();
@@ -389,18 +315,24 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         pEntity.level().playSound(pEntity, pEntity.blockPosition(), SoundEvents.SOUL_SOIL_STEP, SoundSource.BLOCKS, 0.25F, (pEntity.level().getRandom().nextFloat() * 0.1F) + 0.5F);
     }
 
-    public void tryApplyCoverage(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Entity pEntity) {
-        double depth = getDepth(pLevel, pPos, pEntity);
+    public void tryApplyCoverage(@NotNull BlockPos pPos, @NotNull Entity pEntity) {
+
+        double depth = getDepth(pEntity.level(), pPos, pEntity);
+
         if (depth > 0) {
             if (pEntity instanceof Player) {
                 playerStruggling pS = (playerStruggling) pEntity;
                 
                 // Calculate coverage height based on depth
+
+                System.out.println("block's Y: "+pPos.getY());
+//                System.out.println("depth: "+depth);
+
                 double shouldBe = depth/1.875;
                 if (shouldBe > 1.0) {shouldBe = 1.0;}
                 
                 // Convert to pixel height (0-32)
-                int pixelHeight = (int)(shouldBe * 32);
+                int pixelHeight = (int)(shouldBe * 31);
                 
                 // Create a new coverage entry
                 ResourceLocation coverageTexLoc = new ResourceLocation(QuicksandRehydrated.MOD_ID, this.QSBehavior.getCoverageTex());
@@ -512,9 +444,9 @@ public class QuicksandBase extends Block implements QuicksandInterface {
             }
 
             // Apply coverage only for players
-            if (pEntity instanceof Player) {
-                tryApplyCoverage(pState, pLevel, pPos, pEntity);
-            }
+//            if (pEntity instanceof Player) {
+//                tryApplyCoverage(pPos, pEntity);
+//            }
         }
     }
 

@@ -57,8 +57,6 @@ public class DeepMudBlock extends QuicksandBase {
 
 
 
-
-
     public boolean canStepOut(double depth) {
         return depth < 0.125d;
     }
@@ -66,16 +64,6 @@ public class DeepMudBlock extends QuicksandBase {
     private double interpolateAfterKnee(double depth, double a, double b) {
         double normalDepth = (depth - STUCK_DEPTH.depth) / (2- STUCK_DEPTH.depth); // start the array at knee depth
         return EasingHandler.doubleListInterpolate(normalDepth, new double[]{a, b}); // player not allowed to move
-
-    }
-
-
-    @Override
-    public void entityInside(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, @NotNull Entity pEntity) {
-
-        super.entityInside(pState, pLevel, pPos, pEntity);
-        tryApplyCoverage(pState, pLevel, pPos, pEntity);
-
     }
 
     @Override

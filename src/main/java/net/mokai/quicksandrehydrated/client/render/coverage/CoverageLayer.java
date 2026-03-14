@@ -96,14 +96,14 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             CoverageEntry entry = sortedEntries.get(c);
             
             // Skip invalid entries
-            if (entry.begin >= entry.end || entry.begin < 0 || entry.end > 32) {
+            if (entry.begin >= entry.end || entry.begin < -1 || entry.end > 32) {
                 continue;
             }
 
             // We calculate coverage limits more precisely to align them with the block surface.
             // We are removing the offsets that were causing buoyancy issues.
-            double bot = 1.0 - (entry.end/32.0); // Negative offset removed
-            double top = 1.0 - (entry.begin/32.0); // Positive offset removed
+            double bot = 1.0 - (entry.end/31.0); // Negative offset removed
+            double top = 1.0 - (entry.begin/31.0); // Positive offset removed
 
             // Get the texture for this coverage
             TextureAtlasSprite colorTex;
@@ -122,7 +122,7 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
                     // If the alpha of this pixel is within the bounds, use the pixel from the coverage texture
                     // Let's modify the condition for a more accurate coverage calculation.
                     // We use a minimum tolerance to avoid float precision issues.
-                    if (A <= top + 0.0001f && A >= bot - 0.0001f) {
+                    if (A <= top+(1.0/31.0) + 0.0001f && A >= (bot) - 0.0001f) {
                         int color_rgba = colorTex.getPixelRGBA(0, i, k);
                         
                         // We obtain the original opacity
@@ -167,8 +167,8 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             }
             
             // Update texture if needed
-            if (pC.requiresUpdate) {
-                pC.requiresUpdate = false;
+            if (pC.renderUpdate) {
+                pC.renderUpdate = false;
                 this.updateTexture(pC);
             }
             
