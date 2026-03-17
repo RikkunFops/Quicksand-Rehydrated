@@ -12,12 +12,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-
+import net.mokai.quicksandrehydrated.registry.ModCreativeModeTab;
+import net.mokai.quicksandrehydrated.registry.ModEntityTypes;
+import net.mokai.quicksandrehydrated.registry.ModItems;
+import net.mokai.quicksandrehydrated.registry.ModParticles;
+import net.mokai.quicksandrehydrated.registry.ModSounds;
+import net.mokai.quicksandrehydrated.registry.QuicksandRegistry;
+import net.mokai.quicksandrehydrated.util.Keybinding;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.minecraft.client.KeyMapping;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent.Pre;
@@ -28,23 +35,23 @@ import net.minecraft.world.entity.player.Player;
 
 import net.mokai.quicksandrehydrated.util.CameraBoxDimensions;
 
+import static net.mokai.quicksandrehydrated.util.ModTags.Blocks.QUICKSAND_DROWNABLE;
+
 @Mod(QuicksandRehydrated.MOD_ID)
 public class QuicksandRehydrated {
 
     public static final String MOD_ID = "qsrehydrated";
 
-    public QuicksandRehydrated() {
-        NeoForge.EVENT_BUS.register(this);
-        NeoForge.EVENT_BUS.register(GameModEvents.class);
-        
-        
-    }
+	public QuicksandRehydrated(IEventBus modBus) {
+		modBus.register(ClientMod.class);
+		NeoForge.EVENT_BUS.register(GameModEvents.class);
 
-  
-    public static class ClientSetup {
-    	public static void init() {
-
-    	}
+		QuicksandRegistry.register(modBus);
+		ModEntityTypes.register(modBus);
+		ModItems.register(modBus);
+		ModParticles.register(modBus);
+		ModSounds.register(modBus);
+		ModCreativeModeTab.register(modBus);
     }
     
     private static boolean boxOverlapsQuicksandBlock(Level level, AABB box) {
@@ -61,10 +68,10 @@ public class QuicksandRehydrated {
     	}
     	return false;
     }
-    
-    public static class GameModEvents {
+
+	public static class GameModEvents {
     	@SubscribeEvent
-    	public void OnLivingBreathe(LivingBreatheEvent event) {
+    	public static void OnLivingBreathe(LivingBreatheEvent event) {
     		LivingEntity entity = event.getEntity();
     		
             double w = CameraBoxDimensions.FULL_WIDTH;
@@ -74,10 +81,7 @@ public class QuicksandRehydrated {
             	event.setCanBreathe(false);
             }
     	}
-    	//@SubscribeEvent
-    	//public static void onPlayerTick(PlayerTickEvent.Post event) {
-    		
-    	//}
+
     }
     
 }

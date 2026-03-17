@@ -8,6 +8,8 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 
+import java.util.Objects;
+
 public class ModTags {
     public static class Blocks {
         public static final TagKey<Block> QUICKSAND_DROWNABLE
@@ -27,23 +29,23 @@ public class ModTags {
 
 
         private static TagKey<Block> tag(String name) {
-            return BlockTags.create(ResourceLocation.tryParse(QuicksandRehydrated.MOD_ID + ":" + name));
+            return BlockTags.create(Objects.requireNonNull(ResourceLocation.tryParse(QuicksandRehydrated.MOD_ID + ":" + name)));
         }
 
         private static TagKey<Block> forgeTag(String name) {
-            return BlockTags.create(ResourceLocation.tryParse("forge:" + name));
+            return BlockTags.create(Objects.requireNonNull(ResourceLocation.tryParse("forge:" + name)));
         }
     }
 
     public static class Fluids {
-        public static final TagKey<Fluid> QUICKSAND_DROWNABLE_FLUID = tag("quicksand_drownable_fluid");
+        public static final TagKey<Fluid> QUICKSAND_DROWNABLE_FLUID = tag();
 
-        private static TagKey<Fluid> tag(String name) {
-            return FluidTags.create(ResourceLocation.tryParse(QuicksandRehydrated.MOD_ID + ":" + name));
+        private static TagKey<Fluid> tag() {
+            return FluidTags.create(Objects.requireNonNull(ResourceLocation.tryParse(QuicksandRehydrated.MOD_ID + ":" + "quicksand_drownable_fluid")));
         }
 
         private static TagKey<Fluid> forgeTag(String name) {
-            return FluidTags.create(ResourceLocation.tryParse("forge:" + name));
+            return FluidTags.create(Objects.requireNonNull(ResourceLocation.tryParse("forge:" + name)));
         }
     }
 }
