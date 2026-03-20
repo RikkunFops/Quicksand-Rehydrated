@@ -23,18 +23,23 @@ public class ModCreativeModeTab {
 
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> QUICKSAND_TAB = CREATIVE_TABS.register("quicksand", () ->
             CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.quicksand_tab"))
-                    .withTabsBefore(CreativeModeTabs.COMBAT)
+                    .title(Component.translatable("Quicksand Messes"))
                     .icon(() -> QuicksandRegistry.QUICKSAND.get().asItem().getDefaultInstance())
                     .displayItems(((itemDisplayParameters, output) -> {
                         output.acceptAll(QuicksandRegistry.setupCreativeGroup());
                     })).build());
 
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> PLANTS_TAB = CREATIVE_TABS.register("plants", () ->
+            CreativeModeTab.builder()
+                    .title(Component.translatable("Quicksand Plants"))
+                    .icon(() -> ModBlocks.CATTAIL_REEDS.get().asItem().getDefaultInstance())
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        output.acceptAll(ModBlocks.setupCreativeGroups());
+                    })).build());
+
 
     public static void register(IEventBus event) {
         CREATIVE_TABS.register(event);
-        CREATIVE_TABS.register(QuicksandRehydrated.MOD_ID, QUICKSAND_TAB);
-
     }
 
     }

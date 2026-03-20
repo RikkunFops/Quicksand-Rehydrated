@@ -12,13 +12,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.mokai.quicksandrehydrated.registry.ModCreativeModeTab;
-import net.mokai.quicksandrehydrated.registry.ModEntityTypes;
-import net.mokai.quicksandrehydrated.registry.ModItems;
-import net.mokai.quicksandrehydrated.registry.ModParticles;
-import net.mokai.quicksandrehydrated.registry.ModSounds;
-import net.mokai.quicksandrehydrated.registry.QuicksandRegistry;
+import net.mokai.quicksandrehydrated.registry.*;
 import net.mokai.quicksandrehydrated.util.Keybinding;
+import net.mokai.quicksandrehydrated.worldgen.placement.ModPlacementModifierTypes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.minecraft.client.KeyMapping;
 import net.neoforged.fml.common.Mod;
@@ -51,6 +47,9 @@ public class QuicksandRehydrated {
 		ModItems.register(modBus);
 		ModParticles.register(modBus);
 		ModSounds.register(modBus);
+		ModBlocks.register(modBus);
+		ModFeatures.FEATURES.register(modBus);
+		ModPlacementModifierTypes.register(modBus);
 		ModCreativeModeTab.register(modBus);
     }
     

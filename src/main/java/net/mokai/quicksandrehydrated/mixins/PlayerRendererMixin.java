@@ -23,8 +23,13 @@ public class PlayerRendererMixin implements playerRendererInterface {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void onConstructor(EntityRendererProvider.Context p_174557_, boolean isSlim, CallbackInfo ci) {
-        PlayerRenderer thisObject = (PlayerRenderer)(Object)this;
-        thisObject.addLayer(new CoverageLayer(thisObject, isSlim));
+        try {
+            PlayerRenderer thisObject = (PlayerRenderer)(Object)this;
+            thisObject.addLayer(new CoverageLayer(thisObject, isSlim));
+        } catch (IllegalArgumentException e) {
+            // Layer definitions not yet registered - will be added in AddLayers event
+            System.err.println("Failed to add CoverageLayer in constructor: " + e.getMessage());
+        }
     }
 }
 

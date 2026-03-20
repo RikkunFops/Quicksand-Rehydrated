@@ -299,20 +299,29 @@ public class QuicksandBase extends Block implements QuicksandInterface {
             if (pEntity instanceof Player) {
                 playerStruggling pS = (playerStruggling) pEntity;
 
-                // Calculate coverage height based on depth
+                double playerHeight = pEntity.getBbHeight();
 
-                System.out.println("block's Y: "+pPos.getY());
-//                System.out.println("depth: "+depth);
+                // Calculate the position of the quicksand surface relative to the player's feet
+                // depth is positive when the surface is above the feet
+                // Convert the surface position to pixel coordinates (0-31 for player height)
+                double pixelsPerBlock = 31.0 / playerHeight;
+                int surfacePixel = (int)(depth * pixelsPerBlock);
+                surfacePixel = Math.min(surfacePixel, 31); // Cap at head height
 
-                double shouldBe = depth/1.875;
-                if (shouldBe > 1.0) {shouldBe = 1.0;}
+                // Calculate how much submerged (from surface to head)
+                double submergedHeight = playerHeight - depth;
+                if (submergedHeight < 0) submergedHeight = 0;
 
-                // Convert to pixel height (0-32)
-                int pixelHeight = (int)(shouldBe * 31);
+                int submergedPixels = (int)(submergedHeight * pixelsPerBlock);
+                submergedPixels = Math.min(submergedPixels, 31);
+
+                // Coverage should start from the surface position and extend to the head
+                int begin = surfacePixel;
+                int end = Math.min(surfacePixel + submergedPixels, 31);
 
                 // Create a new coverage entry
                 ResourceLocation coverageTexLoc = ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, this.QSBehavior.getCoverageTex());
-                CoverageEntry entry = new CoverageEntry(0, pixelHeight, coverageTexLoc);
+                CoverageEntry entry = new CoverageEntry(begin, end, coverageTexLoc);
 
                 // Add the coverage entry to the player
                 pS.getCoverage().addCoverageEntry(entry);

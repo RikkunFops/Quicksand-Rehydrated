@@ -1,5 +1,6 @@
 package net.mokai.quicksandrehydrated.block.plants;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -18,15 +19,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.mokai.quicksandrehydrated.util.ModTags;
-import org.jetbrains.annotations.NotNull;
 
-public abstract class Cattails extends BushBlock implements BonemealableBlock {
+public class Cattails extends BushBlock implements BonemealableBlock {
 
     public static final IntegerProperty LAYER = IntegerProperty.create("layer", 0, 2);
 
-    public Cattails(Properties properties) {
+    public Cattails(Block.Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LAYER, 0));
+    }
+
+    @Override
+    protected MapCodec<? extends BushBlock> codec() {
+        return null;
     }
 
     @Override
@@ -60,19 +64,49 @@ public abstract class Cattails extends BushBlock implements BonemealableBlock {
     }
 
     @Override
-    public @NotNull BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        int layer = state.getValue(LAYER);
-        BlockPos base = pos.below(layer);
-
-        boolean drop = !player.isCreative();
-
-        level.destroyBlock(base, drop);
-        level.destroyBlock(base.above(), false);
-        level.destroyBlock(base.above(2), false);
-
-        return super.playerWillDestroy(level, pos, state, player);
+    public BlockState playerWillDestroy(Level worldIn, BlockPos pos, BlockState state, Player player) {
+        if (state.getValue(LAYER) == 0) {
+            if(!player.isCreative()) {
+                worldIn.destroyBlock(pos, true);
+                worldIn.destroyBlock(pos.above(), false);
+                worldIn.destroyBlock(pos.above(2), false);
+            } else {
+                worldIn.destroyBlock(pos, false);
+                worldIn.destroyBlock(pos.above(), false);
+                worldIn.destroyBlock(pos.above(2), false);
+            }
+        } else if (state.getValue(LAYER) == 1) {
+            if(!player.isCreative()) {
+                worldIn.destroyBlock(pos.below(), true);
+                worldIn.destroyBlock(pos, false);
+                worldIn.destroyBlock(pos.above(), false);
+            } else {
+                worldIn.destroyBlock(pos.below(), false);
+                worldIn.destroyBlock(pos, false);
+                worldIn.destroyBlock(pos.above(), false);
+            }
+        } else if (state.getValue(LAYER) == 2) {
+            if(!player.isCreative()) {
+                worldIn.destroyBlock(pos.below(2), true);
+                worldIn.destroyBlock(pos.below(), false);
+                worldIn.destroyBlock(pos, false);
+            } else {
+                worldIn.destroyBlock(pos.below(2), false);
+                worldIn.destroyBlock(pos.below(), false);
+                worldIn.destroyBlock(pos, false);
+            }
+        }
+        super.playerWillDestroy(worldIn, pos, state, player);
+        return state;
     }
 
+    public BlockState getStateFromMeta(int meta) {
+        return this.defaultBlockState().setValue(LAYER, meta);
+    }
+
+    public int getMetaFromState(BlockState state) {
+        return state.getValue(LAYER);
+    }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
@@ -81,6 +115,11 @@ public abstract class Cattails extends BushBlock implements BonemealableBlock {
 
     public boolean isValidBonemealTarget(LevelReader worldIn, BlockPos pos, BlockState state, boolean isClient) {
         return true;
+    }
+
+    @Override
+    public boolean isValidBonemealTarget(LevelReader levelReader, BlockPos blockPos, BlockState blockState) {
+        return false;
     }
 
     public boolean isBonemealSuccess(Level worldIn, RandomSource rand, BlockPos pos, BlockState state) {
