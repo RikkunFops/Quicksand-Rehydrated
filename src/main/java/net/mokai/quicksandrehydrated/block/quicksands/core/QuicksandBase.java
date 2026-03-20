@@ -181,7 +181,12 @@ public class QuicksandBase extends Block implements QuicksandInterface {
     }
 
 
+
+
+
     public void quicksandMomentum(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity, double depth) {
+        // sub-function of sorts to applyQuicksandEffects
+        // applies the most basic of quicksand effects - slowing down walking speed, and sinking.
 
         // get quicksand Variables
         double walk = getWalkSpeed(depth);
@@ -249,9 +254,13 @@ public class QuicksandBase extends Block implements QuicksandInterface {
 
         // Check if we are at the buoyancy point or beyond
         double buoyancyPoint = QSBehavior.getBuoyancyPoint();
+
+
         
         // Apply the main effects of quicksand: thickness and sinking
         quicksandMomentum(pState, pLevel, pPos, pEntity, depth);
+
+
 
         // Apply special effects
         entityQuicksandVar qsE = (entityQuicksandVar) pEntity;
@@ -274,7 +283,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
     }
 
     public void firstTouch(BlockPos pPos, Entity pEntity, Level pLevel) {
-//        trySetCoverage(pEntity);
+
         entityQuicksandVar es = (entityQuicksandVar) pEntity;
 
         QuicksandBehavior qb = getQuicksandBehavior();
@@ -322,17 +331,19 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         if (depth > 0) {
             if (pEntity instanceof Player) {
                 playerStruggling pS = (playerStruggling) pEntity;
-                
                 // Calculate coverage height based on depth
 
-                System.out.println("block's Y: "+pPos.getY());
-//                System.out.println("depth: "+depth);
+
 
                 double shouldBe = depth/1.875;
                 if (shouldBe > 1.0) {shouldBe = 1.0;}
                 
                 // Convert to pixel height (0-32)
                 int pixelHeight = (int)(shouldBe * 31);
+
+                if (pixelHeight <= 0) {
+                    return;
+                }
                 
                 // Create a new coverage entry
                 ResourceLocation coverageTexLoc = new ResourceLocation(QuicksandRehydrated.MOD_ID, this.QSBehavior.getCoverageTex());
@@ -378,82 +389,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         }
     }
 
-    @Override
-    public void entityInside(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos,
-            @NotNull Entity pEntity) {
 
-        // Optimization: Ignore bubbles to avoid unnecessary calculations
-        if (pEntity instanceof EntityBubble) {
-            return;
-        }
-
-        // Optimization: Quickly check if the entity is above the block
-        boolean isAboveBlock = pEntity.getY() > pPos.getY() + 0.9;
-        
-        // Calculate depth only if necessary
-        double depth = getDepth(pLevel, pPos, pEntity);
-
-        if (depth > 0) {
-            // Set the entity as “in quicksand”
-            entityQuicksandVar es = (entityQuicksandVar) pEntity;
-            es.setInQuicksand(true);
-            pEntity.resetFallDistance();
-
-            // Only apply sinking if the entity is above quicksand
-            if (isAboveBlock) {
-                // Optimization: Calculate the sinking speed only once
-                // We slightly reduce the sinking speed for a more realistic effect.
-                double sinkSpeed = 0.04 * depth;
-                
-                // Check whether the entity has reached the buoyancy point
-                double buoyancyPoint = getBuoyancyPoint();
-                
-                // If the depth is greater than or equal to the buoyancy point, set the sinking speed to 0.
-                if (depth >= buoyancyPoint) {
-                    sinkSpeed = 0.0;
-                    
-                    // If the entity is a player and is trying to move upward, apply an upward force.
-                    if (pEntity instanceof Player) {
-                        // Check if player has upward momentum (jumping)
-                        if (pEntity.getDeltaMovement().y > 0) {
-                        // Applies upward force when the jump button is pressed
-                        double resurfingForce = QSBehavior.getResurfingForce();
-                        pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, resurfingForce, 0));
-                        
-                        // Add a sound effect for resurfacing (every half second)
-                        if (pLevel.getGameTime() % 10 == 0) {
-                            pLevel.playSound(null, pEntity.blockPosition(), 
-                                    net.minecraft.sounds.SoundEvents.BUBBLE_COLUMN_UPWARDS_AMBIENT, 
-                                    net.minecraft.sounds.SoundSource.BLOCKS, 
-                                    0.4F, 0.8F + pLevel.getRandom().nextFloat() * 0.4F);
-                        }
-                        }
-                    }
-                }
-                // If we are close to the buoyancy point (within 0.3 blocks), gradually reduce speed.
-                else if (buoyancyPoint - depth < 0.3) {
-                    // Linearly reduce the sinking speed as we approach the buoyancy point.
-                    double reductionFactor = (buoyancyPoint - depth) / 0.3;
-                    sinkSpeed *= reductionFactor;
-                }
-                
-                // Apply only if speed is significant
-                if (sinkSpeed > 0.001) {
-                    pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, -sinkSpeed, 0));
-                }
-            }
-
-            // Apply coverage only for players
-//            if (pEntity instanceof Player) {
-//                tryApplyCoverage(pPos, pEntity);
-//            }
-        }
-    }
-
-
-    // @Override
-    // public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos,
-    // RandomSource pRandom) {}
 
     public void spawnBubble(BlockState pState, Level pLevel, Vec3 pos, BlockPos pPos, BlockState bs) {
         BlockState upOne = pLevel.getBlockState(pPos.above());

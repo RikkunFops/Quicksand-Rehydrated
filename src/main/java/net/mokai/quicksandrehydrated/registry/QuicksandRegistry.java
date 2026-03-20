@@ -193,6 +193,7 @@ public class QuicksandRegistry {
     public static final RegistryObject<Block> BOG = registerBlock("bog", () -> new QuicksandBase(muddyBlockBehavior, new QuicksandBehavior()
             .setBuoyancyPoint(BodyDepthThreshold.ABDOMEN.depth) // Valore di buoyancy per le ginocchia (ridotto da WAIST)
             .setResurfingForce(0.005) // Lower resurfing force for bog
+            .setCoverageTexture("bog_coverage")
     ));
 
 

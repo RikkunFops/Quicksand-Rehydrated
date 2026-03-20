@@ -48,113 +48,73 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
 
     }
 
-    private void updateTexture(PlayerCoverage cov) {
-        // Improved version that tries to be more efficient
+    private void updateTexture(PlayerCoverage coverage) {
+
+        // Step one: make array with 32 values.
+        // Each value points to a TextureAtlasSprite,
+        // which is the texture that should be applied at that depth.
+        TextureAtlasSprite[] coverageByPixel = new TextureAtlasSprite[32];
+
+        for (CoverageEntry entry : coverage.coverageEntries) {
+            // both begin and end are inclusive
+            for (int i = entry.begin; i <= entry.end; i++) {
+
+                try {
+                    coverageByPixel[i] = CoverageAtlasHolder.singleton.get(entry.texture);
+                } catch (Exception e) {
+                    // If texture can't be loaded, skip this entry (draws empty)
+                    continue;
+                }
+
+            }
+        }
+
+
+
+        // Step two: go through every pixel and determine it's depth
+        // get the texture that should be applied at that depth.
+        // if there is no texture to be applied, it sets to the pixel to 0 alpha
+
+        TextureAtlasSprite depthMask = CoverageAtlasHolder.singleton.get(new ResourceLocation(QuicksandRehydrated.MOD_ID, "coverage_mask"));
         NativeImage img = this.texture.getPixels();
 
-        // Clear the texture to transparent
+        if (img == null) return;
+
         for (int i = 0; i < 64; ++i) {
             for (int k = 0; k < 64; ++k) {
-                img.setPixelRGBA(i, k, 0);
-            }
-        }
 
-        int entry_count = cov.coverageEntries.size();
-        if (entry_count == 0) {
-            this.texture.upload();
-            return;
-        }
+                // get color from mask
+                int depthRGBA = depthMask.getPixelRGBA(0, i, k);
 
-        // Cache the alpha texture since it's used for all entries
-        TextureAtlasSprite alphaTex;
-        try {
-            alphaTex = CoverageAtlasHolder.singleton.get(
-                new ResourceLocation(QuicksandRehydrated.MOD_ID, "coverage_mask"));
-        } catch (Exception e) {
-            // Fallback to a different texture if coverage_mask is not found
-            System.out.println("Coverage mask texture not found, using fallback");
-            alphaTex = CoverageAtlasHolder.singleton.get(
-                new ResourceLocation(QuicksandRehydrated.MOD_ID, "quicksand_coverage"));
-        }
-        
-        // Pre-calculate alpha values for the mask to avoid recalculating for each entry
-        float[][] alphaValues = new float[64][64];
-        for (int i = 0; i < 64; ++i) {
-            for (int k = 0; k < 64; ++k) {
-                int alpha_rgba = alphaTex.getPixelRGBA(0, i, k);
-                alphaValues[i][k] = (float) FastColor.ARGB32.alpha(alpha_rgba) / 255.0F;
-            }
-        }
-        
-        // Sort entries by begin value to ensure proper layering
-        // This ensures entries with lower begin values (covering more of the player) are processed first
-        List<CoverageEntry> sortedEntries = new ArrayList<>(cov.coverageEntries);
-        sortedEntries.sort((a, b) -> Integer.compare(a.begin, b.begin));
-        
-        // Process entries from bottom to top for proper layering
-        for (int c = sortedEntries.size() - 1; c >= 0; --c) {
-            CoverageEntry entry = sortedEntries.get(c);
-            
-            // Skip invalid entries
-            if (entry.begin >= entry.end || entry.begin < -1 || entry.end > 32) {
-                continue;
-            }
+                // then it's depth as a float (0.0 to 1.0)
+                float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
 
-            // We calculate coverage limits more precisely to align them with the block surface.
-            // We are removing the offsets that were causing buoyancy issues.
-            double bot = 1.0 - (entry.end/31.0); // Negative offset removed
-            double top = 1.0 - (entry.begin/31.0); // Positive offset removed
+                // then scale it (0.0 to 31.0)
+                int depthIndex = (int) (depthFloat*31.0); // floor it?? FLOOR IT!!
 
-            // Get the texture for this coverage
-            TextureAtlasSprite colorTex;
-            try {
-                colorTex = CoverageAtlasHolder.singleton.get(entry.texture);
-            } catch (Exception e) {
-                // If texture can't be loaded, skip this entry
-                continue;
-            }
+                // floor to int; that is 0 to 31
+                depthIndex = Math.max(0, Math.min(31, depthIndex));
 
-            // Process the entire texture to ensure all parts including second layers are covered
-            for (int i = 0; i < 64; ++i) {
-                for (int k = 0; k < 64; ++k) {
-                    float A = alphaValues[i][k];
-                    
-                    // If the alpha of this pixel is within the bounds, use the pixel from the coverage texture
-                    // Let's modify the condition for a more accurate coverage calculation.
-                    // We use a minimum tolerance to avoid float precision issues.
-                    if (A <= top+(1.0/31.0) + 0.0001f && A >= (bot) - 0.0001f) {
-                        int color_rgba = colorTex.getPixelRGBA(0, i, k);
-                        
-                        // We obtain the original opacity
-                        int alpha = FastColor.ARGB32.alpha(color_rgba);
-                        
-                        // Only set the pixel if it has some opacity
-                        if (alpha > 0) {
-                            img.setPixelRGBA(i, k, color_rgba);
-                        }
-                    }
+                // get the texture that should be here
+                TextureAtlasSprite coverageTexture = coverageByPixel[depthIndex];
+
+                // do not do anything if its null
+                if (coverageTexture == null)  {
+                    int emptyColor = FastColor.ARGB32.color(0, 0, 0, 0);
+                    img.setPixelRGBA(i, k, emptyColor);
+                    continue;
                 }
+
+                // get color, and set color
+                int color_rgba = coverageTexture.getPixelRGBA(0, i, k);
+                img.setPixelRGBA(i, k, color_rgba);
+
             }
         }
 
         this.texture.upload();
-        
-        // Debug: print coverage information to help diagnose problems
-        // Uncomment this section if you encounter problems with coverage.
-        /*
-        if (!sortedEntries.isEmpty()) {
-            System.out.println("Coverage entries: " + sortedEntries.size());
-            for (CoverageEntry entry : sortedEntries) {
-                System.out.println("Entry: begin=" + entry.begin + ", end=" + entry.end + 
-                                  ", texture=" + entry.texture + 
-                                  ", bot=" + (1.0 - (entry.end/32.0) - 0.001) + 
-                                  ", top=" + (1.0 - (entry.begin/32.0) + 0.001));
-            }
-        }
-        */
-    }
 
-//    private void copyYLayer(Resource, int yLayer)
+    }
 
     public void render(PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, AbstractClientPlayer pAbstractPlayer, float pLimbSwing, float pLimbSwingAmount, float pPartialTick, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         try {
@@ -203,7 +163,7 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
                 System.out.println("Rendering coverage for player: " + pAbstractPlayer.getName().getString());
                 System.out.println("Coverage entries: " + pC.coverageEntries.size());
                 for (CoverageEntry entry : pC.coverageEntries) {
-                    System.out.println("Entry: begin=" + entry.begin + ", end=" + entry.end + 
+                    System.out.println("Entry: begin=" + entry.begin + ", end=" + entry.end +
                                       ", texture=" + entry.texture);
                 }
             }

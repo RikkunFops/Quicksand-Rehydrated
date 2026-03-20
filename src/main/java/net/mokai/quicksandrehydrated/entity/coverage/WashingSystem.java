@@ -220,7 +220,7 @@ public class WashingSystem {
                 entry.end -= topPixels;
                 
                 // Safety check
-                if (entry.begin >= entry.end) {
+                if (entry.begin >= entry.end || entry.begin < 0) {
                     entriesToRemove.add(entry);
                 }
             }

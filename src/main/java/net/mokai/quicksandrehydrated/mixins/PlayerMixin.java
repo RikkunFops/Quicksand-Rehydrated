@@ -39,11 +39,7 @@ public class PlayerMixin implements playerStruggling {
     }
 
     public void addCoverage(CoverageEntry entry) {
-
-        Player player = (Player) (Object) this;
-
         this.coverage.addCoverageEntry(entry);
-
     }
 
     public void replaceCoverage(PlayerCoverage newCoverage) {
@@ -89,8 +85,6 @@ public class PlayerMixin implements playerStruggling {
     public void BeginStruggle() {
         if (!holdingStruggle) {
             setHoldingStruggle(true);
-
-            System.out.println("Begin struggle");
 
             Player player = (Player) (Object) this;
             entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar) player;

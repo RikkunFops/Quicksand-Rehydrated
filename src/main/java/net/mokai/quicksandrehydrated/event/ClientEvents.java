@@ -36,13 +36,9 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event) {
-
             if (Keybinding.STRUGGLE_KEY.isDown()) {
                 ((playerStruggling) Minecraft.getInstance().player).BeginStruggle();
-            } else {
-                System.out.println("Struggle key not held");
             }
-
         }
 
         @SubscribeEvent
