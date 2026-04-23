@@ -1,0 +1,149 @@
+{
+  "block.qsrehydrated.thin_mud": "Limo",
+  "block.qsrehydrated.shallow_mud": "Fango Basso",
+  "block.qsrehydrated.deep_mud": "Fango Profondo",
+  "block.qsrehydrated.bottomless_mud": "Pantano",
+  "block.qsrehydrated.tidal_mud": "Fango delle Maree",
+  "block.qsrehydrated.powder_snow": "Neve Polverosa",
+  "block.qsrehydrated.powder_ash": "Cenere Polverosa",
+  "block.qsrehydrated.soft_quicksand":  "Sabbie Mobili Molli",
+  "block.qsrehydrated.moor": "Zolla Fangosa",
+  "block.qsrehydrated.mire": "Aquitrino",
+  "block.qsrehydrated.mossy_peat_bog": "Torba Muschiata",
+  "block.qsrehydrated.peat_bog": "Torba",
+  "block.qsrehydrated.dry_peat": "Torba Secca",
+  "block.qsrehydrated.brown_clay": "Argilla Marrone",
+  "block.qsrehydrated.mineral_clay": "Argilla Mineraria",
+  "block.qsrehydrated.hardened_clay": "Argilla Indurita",
+  "block.qsrehydrated.sinking_clay": "Argilla Instabile",
+  "block.qsrehydrated.wax": "Cera",
+  "block.qsrehydrated.quicksand":  "Sabbie Mobili",
+  "block.qsrehydrated.tangleroot_moss": "Muschio Aggrovigliato",
+  "block.qsrehydrated.dense_webbing": "Ragnatele Dense",
+  "block.qsrehydrated.larvae": "Larvaio",
+  "block.qsrehydrated.corrupt_sand": "Sabbia Corrotta",
+  "block.qsrehydrated.swallowing_flesh": "Carne Inghiottitrice",
+  "block.qsrehydrated.soft_gravel": "Ghiaia Molle",
+  "block.qsrehydrated.silt_sludge": "Sedimento Molle",
+
+  "block.qsrehydrated.white_quickrug": "Tappeto Mobile Bianco",
+  "block.qsrehydrated.orange_quickrug": "Tappeto Mobile Arancione",
+  "block.qsrehydrated.magenta_quickrug": "Tappeto Mobile Magenta",
+  "block.qsrehydrated.light_blue_quickrug": "Tappeto Mobile Celeste",
+  "block.qsrehydrated.yellow_quickrug": "Tappeto Mobile Giallo",
+  "block.qsrehydrated.lime_quickrug": "Tappeto Mobile Lime",
+  "block.qsrehydrated.pink_quickrug": "Tappeto Mobile Rosa",
+  "block.qsrehydrated.gray_quickrug": "Tappeto Mobile Grigio",
+  "block.qsrehydrated.light_gray_quickrug": "Tappeto Mobile Grigio Chiaro",
+  "block.qsrehydrated.cyan_quickrug": "Tappeto Mobile Ciano",
+  "block.qsrehydrated.purple_quickrug": "Tappeto Mobile Viola",
+  "block.qsrehydrated.blue_quickrug": "Tappeto Mobile Blu",
+  "block.qsrehydrated.brown_quickrug": "Tappeto Mobile Marrone",
+  "block.qsrehydrated.green_quickrug": "Tappeto Mobile Verde",
+  "block.qsrehydrated.red_quickrug": "Tappeto Mobile Rosso",
+  "block.qsrehydrated.black_quickrug": "Tappeto Mobile Nero",
+
+  "block.qsrehydrated.duckweed": "Lenticchia d'Acqua",
+  "block.qsrehydrated.duckweed_flowers": "Fiori di Lenticchia d'Acqua",
+  "block.qsrehydrated.peat_bog_bush": "Erba della Zolla Fangosa",
+  "block.qsrehydrated.fern_bush": "Cespuglio di Felce",
+  "block.qsrehydrated.muddy_branch": "Ramo Fangoso",
+
+  "block.qsrehydrated.bog": "Mota Densa",
+  "item.qsrehydrated.bog_bucket": "Secchio di Mota Densa",
+  "block.qsrehydrated.dry_quicksand": "Sabbie Mobili Secche",
+  "item.qsrehydrated.dry_quicksand_bucket": "Secchio di Sabbie Mobili Secche",
+  "block.qsrehydrated.red_quicksand": "Sabbie Mobili Rosse",
+  "item.qsrehydrated.red_quicksand_bucket": "Secchio di Sabbie Mobili Rosse",
+  "block.qsrehydrated.jungle_quicksand": "Sabbie Mobili della Giungla",
+  "item.qsrehydrated.jugngle_quicksand_bucket": "Secchio di Sabbie Mobili della Giungla",
+  "block.qsrehydrated.liquid_mire": "Melma Liquida",
+  "item.qsrehydrated.liquid_mire_bucket": "Secchio di Melma",
+  "block.qsrehydrated.living_slime": "Slime Vivente",
+  "item.qsrehydrated.sinking_slime_bucket": "Secchio di Slime Instabile",
+  "block.qsrehydrated.mucus": "Muco",
+  "item.qsrehydrated.mucus_bucket": "Secchio di Muco",
+  "block.qsrehydrated.tar": "Catrame",
+  "item.qsrehydrated.tar_bucket": "Secchio di Catrame",
+  "block.qsrehydrated.acid": "Acido",
+  "item.qsrehydrated.acid_bucket": "Secchio d'Acido",
+  "block.qsrehydrated.liquid_honey": "Miele",
+  "item.qsrehydrated.liquid_honey_bucket": "Secchio di Miele",
+  "block.qsrehydrated.liquid_chocolate": "Cioccolata Calda",
+  "item.qsrehydrated.liquid_chocolate_bucket": "Secchio di Cioccolata Calda",
+
+  "block.qsrehydrated.chocolate": "Blocco di Cioccolata",
+  "block.qsrehydrated.honeycomb": "Alveare Popolato",
+  "block.qsrehydrated.rafflesia_flesh": "Fiore di Rafflesia",
+  "block.qsrehydrated.rafflesia_wall": "Pareti del fiore di Rafflesia",
+  "block.qsrehydrated.wax_drip": "Goccia di Cera",
+  "block.qsrehydrated.dead_lieaves": "Foglie Morte",
+  "block.qsrehydrated.cattails": "Canne di Palude",
+  "block.qsrehydrated.cranberry_bush": "Cespuglio di Mirtilli Rossi",
+
+
+  "block.qsrehydrated.mixer": "Mescolatore di Pasticcio",
+
+
+  "item.qsrehydrated.cranberries": "Mirtilli Rossi",
+  "item.qsrehydrated.larva_food": "Larva",
+  "item.qsrehydrated.cooked_larva_food": "Larva Cotta",
+  "item.qsrehydrated.long_stick": "Bastone da Passeggio",
+  "item.qsrehydrated.rope": "Corda",
+  "item.qsrehydrated.quicksand_book": "Enciclopedia delle Sabbie Mobili",
+
+  "item.qsrehydrated.music_disc_flight": "Vinile",
+  "item.qsrehydrated.music_disc_flight.desc": "Rimsky-Korsakov - Flight of the Bumblebee",
+  "item.qsrehydrated.hunnibee_spawn_egg": "Uovo di Ape Zuccherina",
+  "item.qsrehydrated.cave_blob_spawn_egg": "Uovo del Blob delle Caverne",
+  "item.qsrehydrated.tar_golem_spawn_egg": "Uovo di Golem di Catrame",
+  "item.qsrehydrated.bog_golem_spawn_egg": "Uovo di Golem di Melma",
+
+  "item.qsrehydrated.potion_of_sinking.effect.water": "Pozione dell'affondamento",
+  "item.qsrehydrated.splash_potion_of_sinking.effect.water": "Pozione dell'Affondamento Lanciabile",
+
+
+
+
+  "entity.minecraft.villager.qsrehydrated.mudologer" : "Edaphologer",
+
+  "itemGroup.quicksand_tab": "Quicksand Reloaded",
+
+  "key.category.qsrehydrated.tab": "Quicksand Rehydrated",
+
+  "creativetab.qsrehydrated.quicksand_items_tab": "Quicksand Rehydrated: Oggetti",
+  "creativetab.qsrehydrated.quicksand_messes_tab": "Quicksand Rehydrated: Pasticci",
+
+  "key.category.quicksandrehydrated.quicksand": "Quicksand Rehydrated",
+  "key.category.quicksandrehydrated.struggle": "Svincolarsi",
+
+
+
+  "biome.qsrehydrated.mud_flat": "Distesa Fangosa",
+
+  
+
+  "death.attack.qsrehydrated_hardcore": "La Piuma di Fenice di %1$s è rimasta a casa...",
+
+  "death.attack.qsrehydrated_generic_0": "%1$s è svanito in un terreno soffice e risucchiante",
+  "death.attack.qsrehydrated_generic_1": "%1$s non guardava dove metteva i passi",
+  "death.attack.qsrehydrated_generic_2": "%1$s è stato divorato dalle sabbie mobili",
+
+  "death.attack.qsrehydrated_quicksand": "%1$s è sparito in delle sabbie mobili dall'aspetto innocente",
+  "death.attack.qsrehydrated_soft_quicksand": "%1$s è stato sopraffatto da delle sabbie mobili molli",
+
+  "death.attack.qsrehydrated_dry_quicksand": "%1$s è svanito in una sabbia soffice e fine",
+
+  "death.attack.qsrehydrated_moor": "%1$s ha scambiato l'aquitrino per un terreno solido",
+  "death.attack.qsrehydrated_tar": "%1$s diventerà un bel fossile",
+
+  "death.attack.qsrehydrated_flesh": "%1$s è stato inghiottito da dei tentacoli",
+  "death.attack.qsrehydrated_soulsand": "%1$s ha sofferto la corruttezza delle sabbie delle anime",
+  "death.attack.qsrehydrated_acid": "%1$s è stato sciolto e digerito",
+
+  "death.attack.qsrehydrated_chocolate": "%1$s è diventato fonduta di cioccolata",
+  "death.attack.qsrehydrated_marshmallow": "%1$s è stato sopraffatto dai marshmellow",
+  "death.attack.qsrehydrated_sugar": "%1$s ha assaggiato l'arcobaleno",
+  "death.attack.qsrehydrated_candy": "%1$s è stato candito",
+  "death.attack.qsrehydrated_generic_candy": "%1$s ha incontrato la sua dolce dipartita nella melma zuccherina"
+}
