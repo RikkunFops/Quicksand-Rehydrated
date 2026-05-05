@@ -22,15 +22,17 @@ import net.mokai.quicksandrehydrated.entity.coverage.PlayerCoverage;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
 import net.mokai.quicksandrehydrated.registry.ModModelLayers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
     PlayerCoverageDefaultModel coverageModel;
     private final DynamicTexture texture;
+    private final DynamicTexture splatterTexture;
     TextureManager textureManager;
     ResourceLocation resourcelocation;
+    ResourceLocation splatterResourcelocation;
+
+    private static final float EDGE_ROUGHNESS = 0.15F;
+    private static final int DEPTH_SHIFT_Y = 2;
 
     public CoverageLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> pRenderer, boolean pSlim) {
         super(pRenderer);
@@ -43,13 +45,48 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
         }
 
         this.texture = new DynamicTexture(64, 64, true);
+        this.splatterTexture = new DynamicTexture(64, 64, true);
         this.textureManager = Minecraft.getInstance().textureManager;
         this.resourcelocation = Minecraft.getInstance().textureManager.register("coverage", this.texture);
+        this.splatterResourcelocation = Minecraft.getInstance().textureManager.register("coverage_splatter", this.splatterTexture);
 
     }
 
-    private void updateTexture(PlayerCoverage coverage) {
+    private void extendPixelUp(NativeImage img, TextureAtlasSprite depthMask, TextureAtlasSprite[] coverageByPixel, int x, int y, int sourceDepthIndexRaw, int color) {
+        if (y < DEPTH_SHIFT_Y) {
+            return;
+        }
+        int targetY = y - DEPTH_SHIFT_Y;
+        int targetDepthIndex = computeDepthIndexRaw(depthMask, x, targetY);
+        if (coverageByPixel[targetDepthIndex] != coverageByPixel[sourceDepthIndexRaw]) {
+            return;
+        }
+        int existing = img.getPixelRGBA(x, targetY);
+        if (FastColor.ARGB32.alpha(existing) == 0) {
+            img.setPixelRGBA(x, targetY, color);
+        }
+    }
 
+    private int computeDepthIndexRaw(TextureAtlasSprite depthMask, int x, int y) {
+        int depthRGBA = depthMask.getPixelRGBA(0, x, y);
+        float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
+        int depthIndex = (int) (depthFloat * 31.0F);
+        return Math.max(0, Math.min(31, depthIndex));
+    }
+
+    private int computeDepthIndex(TextureAtlasSprite depthMask, int x, int y) {
+        int depthRGBA = depthMask.getPixelRGBA(0, x, y);
+        float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
+
+        int hash = (x * 73428767) ^ (y * 912783);
+        float jitter = (((hash >>> 10) & 255) / 255.0F - 0.5F) * EDGE_ROUGHNESS;
+        depthFloat = Math.max(0.0F, Math.min(1.0F, depthFloat + jitter));
+
+        int depthIndex = (int) (depthFloat * 31.0F);
+        return Math.max(0, Math.min(31, depthIndex));
+    }
+
+    private TextureAtlasSprite[] buildCoverageByPixel(PlayerCoverage coverage) {
         // Step one: make array with 32 values.
         // Each value points to a TextureAtlasSprite,
         // which is the texture that should be applied at that depth.
@@ -69,9 +106,14 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             }
         }
 
+        return coverageByPixel;
+    }
 
+    private void updateTexture(PlayerCoverage coverage) {
 
-        // Step two: go through every pixel and determine it's depth
+        TextureAtlasSprite[] coverageByPixel = buildCoverageByPixel(coverage);
+
+        // Step two: go through every pixel and determine its depth
         // get the texture that should be applied at that depth.
         // if there is no texture to be applied, it sets to the pixel to 0 alpha
 
@@ -83,17 +125,8 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
         for (int i = 0; i < 64; ++i) {
             for (int k = 0; k < 64; ++k) {
 
-                // get color from mask
-                int depthRGBA = depthMask.getPixelRGBA(0, i, k);
-
-                // then it's depth as a float (0.0 to 1.0)
-                float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
-
-                // then scale it (0.0 to 31.0)
-                int depthIndex = (int) (depthFloat*31.0); // floor it?? FLOOR IT!!
-
-                // floor to int; that is 0 to 31
-                depthIndex = Math.max(0, Math.min(31, depthIndex));
+                int depthIndex = computeDepthIndex(depthMask, i, k);
+                int depthIndexRaw = computeDepthIndexRaw(depthMask, i, k);
 
                 // get the texture that should be here
                 TextureAtlasSprite coverageTexture = coverageByPixel[depthIndex];
@@ -108,12 +141,62 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
                 // get color, and set color
                 int color_rgba = coverageTexture.getPixelRGBA(0, i, k);
                 img.setPixelRGBA(i, k, color_rgba);
+                extendPixelUp(img, depthMask, coverageByPixel, i, k, depthIndexRaw, color_rgba);
 
             }
         }
 
         this.texture.upload();
 
+    }
+
+    private void updateSplatterTexture(PlayerCoverage coverage) {
+        TextureAtlasSprite[] coverageByPixel = buildCoverageByPixel(coverage);
+        TextureAtlasSprite depthMask = CoverageAtlasHolder.singleton.get(new ResourceLocation(QuicksandRehydrated.MOD_ID, "coverage_mask"));
+        NativeImage img = this.splatterTexture.getPixels();
+
+        if (img == null) return;
+
+        for (int i = 0; i < 64; ++i) {
+            for (int k = 0; k < 64; ++k) {
+                int depthIndex = computeDepthIndex(depthMask, i, k);
+                int depthIndexRaw = computeDepthIndexRaw(depthMask, i, k);
+                TextureAtlasSprite coverageTexture = coverageByPixel[depthIndex];
+
+                if (coverageTexture == null)  {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int baseColor = coverageTexture.getPixelRGBA(0, i, k);
+                int baseAlpha = FastColor.ARGB32.alpha(baseColor);
+                if (baseAlpha == 0) {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int hash = (i * 73428767) ^ (k * 912783) ^ (depthIndex * 12043);
+                float noise = ((hash >>> 8) & 255) / 255.0F;
+                float splat = Math.max(0.0F, (noise - 0.70F) / 0.30F);
+                int outAlpha = (int) (baseAlpha * splat * 0.85F);
+
+                if (outAlpha <= 0) {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int outColor = FastColor.ARGB32.color(
+                    outAlpha,
+                    FastColor.ARGB32.red(baseColor),
+                    FastColor.ARGB32.green(baseColor),
+                    FastColor.ARGB32.blue(baseColor)
+                );
+                img.setPixelRGBA(i, k, outColor);
+                extendPixelUp(img, depthMask, coverageByPixel, i, k, depthIndexRaw, outColor);
+            }
+        }
+
+        this.splatterTexture.upload();
     }
 
     public void render(PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, AbstractClientPlayer pAbstractPlayer, float pLimbSwing, float pLimbSwingAmount, float pPartialTick, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
@@ -130,6 +213,7 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             if (pC.renderUpdate) {
                 pC.renderUpdate = false;
                 this.updateTexture(pC);
+                this.updateSplatterTexture(pC);
             }
             
             // Get the appropriate model
@@ -156,7 +240,12 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             model.renderToBuffer(pPoseStack, vertexconsumer, pPackedLight, 
                 LivingEntityRenderer.getOverlayCoords(pAbstractPlayer, 0.0F), 
                 1.0F, 1.0F, 1.0F, 1.0F);
-            
+
+            VertexConsumer splatterConsumer = pBuffer.getBuffer(RenderType.entityTranslucentCull(this.splatterResourcelocation));
+            model.renderToBuffer(pPoseStack, splatterConsumer, pPackedLight,
+                LivingEntityRenderer.getOverlayCoords(pAbstractPlayer, 0.0F),
+                1.0F, 1.0F, 1.0F, 1.0F);
+
             // Debug: uncomment to print information about the coverage
             /*
             if (!pC.coverageEntries.isEmpty()) {
