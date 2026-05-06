@@ -1,5 +1,9 @@
 package net.mokai.quicksandrehydrated;
 
+import net.mokai.quicksandrehydrated.util.compat.CuriosCompat;
+import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
+import net.mokai.quicksandrehydrated.client.compat.CuriosClientCompat;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -65,6 +69,7 @@ public class QuicksandRehydrated {
 
 
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::enqueueImc);
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -82,6 +87,12 @@ public class QuicksandRehydrated {
         });
     }
 
+    private void enqueueImc(final InterModEnqueueEvent event) {
+        if (ModList.get().isLoaded("curios")) {
+            CuriosCompat.registerSlotTypes();
+        }
+    }
+
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ClientModEvents {
@@ -91,6 +102,9 @@ public class QuicksandRehydrated {
             //ItemBlockRenderTypes.setRenderLayer(ModFluids.DRY_QUICKSAND.get(), RenderType.solid());
             MenuScreens.register(ModMenuTypes.MIXER_MENU.get(), MixerScreen::new);
 
+            if (ModList.get().isLoaded("curios")) {
+                CuriosClientCompat.registerRenderers();
+            }
         }
     }
 
