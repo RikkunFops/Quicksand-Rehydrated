@@ -29,8 +29,9 @@ public class CharmCurioRenderer implements ICurioRenderer {
         HumanoidModel<LivingEntity> bodyModel = (HumanoidModel<LivingEntity>) humanoidModel;
         ICurioRenderer.followBodyRotations(slotContext.entity(), bodyModel);
         bodyModel.body.translateAndRotate(poseStack);
-        poseStack.translate(0.0F, 0.7F, 0.25F);
-        poseStack.scale(0.35F, 0.35F, 0.35F);
+        poseStack.translate(0.0F, 0.1F, -0.125F);
+        poseStack.scale(0.2F, 0.2F, 0.5F);
+        poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180.0F));
 
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 stack,
