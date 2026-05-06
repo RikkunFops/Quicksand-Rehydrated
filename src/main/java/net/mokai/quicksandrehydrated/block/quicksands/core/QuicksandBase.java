@@ -26,6 +26,7 @@ import net.mokai.quicksandrehydrated.entity.data.QuicksandEffect;
 import net.mokai.quicksandrehydrated.entity.data.QuicksandEffectManager;
 import net.mokai.quicksandrehydrated.entity.entityQuicksandVar;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
+import net.mokai.quicksandrehydrated.util.CharmEffects;
 import net.mokai.quicksandrehydrated.util.EasingHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -41,7 +42,7 @@ import static org.joml.Math.clamp;
  * <font color=orange>A</font>
  * <font color=yellow>G</font>
  * <font color=green>I</font>
- * <font color=blue>C</font> is going on!
+ * <font color=blue>G</font> is going on!
  * This is the base of Blocks to function as Quicksand blocks.
  * Override the specific methods to achieve non-default behavior when implementing other
  * sinking blocks.
@@ -192,6 +193,10 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         double walk = getWalkSpeed(depth);
         double vert = getVertSpeed(depth);
         double sink = getSinkSpeed(depth);
+
+        if (pEntity instanceof Player player) {
+            sink *= CharmEffects.getSinkSpeedMultiplier(player);
+        }
 
         // sinking is a replacement for gravity.
         Vec3 Momentum = pEntity.getDeltaMovement();

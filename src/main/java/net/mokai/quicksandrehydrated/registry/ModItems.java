@@ -8,11 +8,14 @@ import net.mokai.quicksandrehydrated.item.Rope;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.*;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.mokai.quicksandrehydrated.item.potion.QuicksandPotion;
 import net.mokai.quicksandrehydrated.item.potion.QuicksandPotionThrowable;
+import net.mokai.quicksandrehydrated.item.CuriosCharmItem;
+import net.mokai.quicksandrehydrated.item.CharmItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +45,11 @@ public class ModItems {
     public static final RegistryObject<Item> SNORKEL_MASK =
             ITEMS.register("snorkel",
                     () -> new ArmorItem(ArmorMaterials.IRON , ArmorItem.Type.HELMET, new Item.Properties().stacksTo(1) ));
+
+    public static final RegistryObject<Item> HEAVY_CHARM =
+            ITEMS.register("heavy_charm", () -> createCharmItem(new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> LIGHT_CHARM =
+            ITEMS.register("light_charm", () -> createCharmItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<SpawnEggItem> HUNNIBEE_SPAWN_EGG =
             ITEMS.register("hunnibee_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.HUNNIBEE, 0x1B1B1B, 0xFFFF00, new Item.Properties()));
@@ -80,6 +88,8 @@ public class ModItems {
         addItem(QUICKSAND_SPLASH_POTION);
         addItem(BREATHING_REED);
         addItem(SNORKEL_MASK);
+        addItem(HEAVY_CHARM);
+        addItem(LIGHT_CHARM);
         addEggItem(HUNNIBEE_SPAWN_EGG);
         addEggItem(TAR_SLIME_SPAWN_EGG);
         addEggItem(MUDDY_BLOB_SPAWN_EGG);
@@ -90,4 +100,11 @@ public class ModItems {
 
     public static void addItem(RegistryObject<Item> b) { REGLIST.add(b.get().getDefaultInstance()); }
     public static void addEggItem(RegistryObject<SpawnEggItem> b) { REGLIST.add(b.get().getDefaultInstance()); }
+
+    private static Item createCharmItem(Item.Properties properties) {
+        if (ModList.get().isLoaded("curios")) {
+            return new CuriosCharmItem(properties);
+        }
+        return new CharmItem(properties);
+    }
 }

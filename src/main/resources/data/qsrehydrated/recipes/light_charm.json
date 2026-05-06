@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "# #",
+    "# #",
+    " = "
+  ],
+  "key": {
+    "#":
+    {
+      "item":"minecraft:gold_nugget"
+    },
+    "=":
+    {
+      "item":"minecraft:feather"
+    }
+  },
+  "result": {
+    "item": "qsrehydrated:light_charm"
+  }
+}
