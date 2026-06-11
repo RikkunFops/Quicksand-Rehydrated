@@ -43,9 +43,9 @@ public class QuicksandRegistry {
     private static final BlockBehaviour.Properties baseBlockBehavior =
             BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).noCollission().forceSolidOn().isViewBlocking((a,b,c)->true);
     private static final BlockBehaviour.Properties muddyBlockBehavior =
-            BlockBehaviour.Properties.ofFullCopy(Blocks.MUD).requiresCorrectToolForDrops();
+            BlockBehaviour.Properties.ofFullCopy(Blocks.MUD).noCollission().forceSolidOn().isViewBlocking((a,b,c)->true).requiresCorrectToolForDrops();
     private static final BlockBehaviour.Properties baseFlowingBlockBehavior =
-            BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).requiresCorrectToolForDrops();
+            BlockBehaviour.Properties.ofFullCopy(Blocks.SAND).noCollission().forceSolidOn().isViewBlocking((a,b,c)->true).requiresCorrectToolForDrops();
     private static final BlockBehaviour.Properties slimeBlockBehavior =
             BlockBehaviour.Properties.ofFullCopy(Blocks.SLIME_BLOCK).friction(1.0F).strength(2.5F);
     private static final BlockBehaviour.Properties woolBlockBehavior =

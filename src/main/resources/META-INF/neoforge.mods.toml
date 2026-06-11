@@ -28,3 +28,9 @@ versionRange = "[21.1,)"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.qsrehydrated]]
+modId = "terrablender"
+mandatory = true
+versionRange = "[4.1.0,)"
+ordering = "NONE"
+side = "BOTH"

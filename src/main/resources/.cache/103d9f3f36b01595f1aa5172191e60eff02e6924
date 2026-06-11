@@ -1,7 +1,8 @@
-// 1.21.1	2026-06-11T00:07:50.5014886	Registries
+// 1.21.1	2026-06-11T19:36:47.4252638	Registries
 1ff2d81948ec27b5ac879cdda3542ae29c2c2d53 data/qsrehydrated/neoforge/biome_modifier/add_bog_pit.json
 7ed4ca3f4f4c12f38290f9fcd7b8770eeb4e0133 data/qsrehydrated/neoforge/biome_modifier/add_mud_pit.json
 9f17be59179886191bd3bbd94838ed8595fcafd1 data/qsrehydrated/neoforge/biome_modifier/add_quicksand_pit.json
+15479571c1ac05aeb030a3f83d968dc9ef90f335 data/qsrehydrated/worldgen/biome/mudflat.json
 f9157ae628c35d8e6c154c2d9f43771b283cb48a data/qsrehydrated/worldgen/configured_feature/bog_pit.json
 1b9f3237a495ff83f9935d1ec900735acbf0ebb5 data/qsrehydrated/worldgen/configured_feature/mud_pit.json
 e10920660a1027b59e5a3485849ce81515d3ec21 data/qsrehydrated/worldgen/configured_feature/quicksand_pit.json

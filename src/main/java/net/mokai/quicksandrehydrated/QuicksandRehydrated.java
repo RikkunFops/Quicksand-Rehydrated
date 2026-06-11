@@ -8,16 +8,22 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.mokai.quicksandrehydrated.entity.coverage.WashingSystem;
 import net.mokai.quicksandrehydrated.registry.*;
+import net.mokai.quicksandrehydrated.worldgen.biomes.ModBiomes;
+import net.mokai.quicksandrehydrated.worldgen.biomes.ModRegion;
+import net.mokai.quicksandrehydrated.worldgen.biomes.ModSurfaceRuleData;
 import net.mokai.quicksandrehydrated.worldgen.placement.ModPlacementModifierTypes;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.event.entity.living.LivingBreatheEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 
 import net.mokai.quicksandrehydrated.util.CameraBoxDimensions;
+import terrablender.api.Regions;
+import terrablender.api.SurfaceRuleManager;
 
 import static net.mokai.quicksandrehydrated.util.ModTags.Blocks.QUICKSAND_DROWNABLE;
 
@@ -40,8 +46,17 @@ public class QuicksandRehydrated {
 		ModPlacementModifierTypes.register(modBus);
 		ModRecipes.register(modBus);
 		ModCreativeModeTab.register(modBus);
+		ModRegion.register(modBus);
+
+		modBus.addListener(this::commonSetup);
     }
-    
+
+	private void commonSetup(final FMLCommonSetupEvent event) {
+		event.enqueueWork(() -> {
+			SurfaceRuleManager.addSurfaceRules(SurfaceRuleManager.RuleCategory.OVERWORLD, MOD_ID, ModSurfaceRuleData.makeRules());
+		});
+	}
+
     private static boolean boxOverlapsQuicksandBlock(Level level, AABB box) {
     	BlockPos minXYZ = BlockPos.containing(box.minX,box.minY,box.minZ);
     	BlockPos maxXYZ = BlockPos.containing(box.maxX,box.maxY,box.maxZ);
