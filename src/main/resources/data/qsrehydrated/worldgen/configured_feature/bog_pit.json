@@ -1,0 +1,32 @@
+{
+  "type": "qsrehydrated:quicksand_pit",
+  "config": {
+    "block": "qsrehydrated:peat_bog",
+    "has_border": false,
+    "has_surface": true,
+    "irregularity": 0.5,
+    "max_depth": 3,
+    "max_height": 320,
+    "max_radius": 8,
+    "min_depth": 2,
+    "min_height": 62,
+    "min_radius": 4,
+    "replaceable_blocks": [
+      "minecraft:sand",
+      "minecraft:sandstone",
+      "minecraft:red_sand",
+      "minecraft:red_sandstone",
+      "minecraft:dirt",
+      "minecraft:coarse_dirt",
+      "minecraft:rooted_dirt",
+      "minecraft:grass_block",
+      "minecraft:terracotta",
+      "minecraft:white_terracotta",
+      "minecraft:orange_terracotta",
+      "minecraft:yellow_terracotta",
+      "minecraft:brown_terracotta",
+      "minecraft:red_terracotta"
+    ],
+    "surface_block": "qsrehydrated:mossy_peat_bog"
+  }
+}

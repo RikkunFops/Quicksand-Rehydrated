@@ -1,16 +1,18 @@
 package net.mokai.quicksandrehydrated.mixins;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
-import net.mokai.quicksandrehydrated.block.quicksands.Quicksand;
 import net.mokai.quicksandrehydrated.block.quicksands.core.QuicksandBase;
 import net.mokai.quicksandrehydrated.entity.coverage.CoverageEntry;
 import net.mokai.quicksandrehydrated.entity.coverage.CoverageSerializer;
@@ -22,8 +24,9 @@ import net.mokai.quicksandrehydrated.networking.packet.CoverageSyncS2CPacket;
 import net.mokai.quicksandrehydrated.networking.packet.StruggleDownC2SPacket;
 import net.mokai.quicksandrehydrated.networking.packet.StruggleReleaseC2SPacket;
 import net.mokai.quicksandrehydrated.util.Keybinding;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -33,22 +36,15 @@ import java.util.UUID;
 @Mixin(Player.class)
 public class PlayerMixin implements playerStruggling {
 
-    @Unique
-    private static final UUID GRAVITY_MODIFIER_ID = UUID.fromString("b8c5b4f6-8188-4466-8239-53c567b11b32");
-    private static final AttributeModifier GRAVITY_MODIFIER_QUICKSAND = new AttributeModifier(ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, String.valueOf(GRAVITY_MODIFIER_ID)), -1.0F, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
-
+    private static ResourceLocation GRAVITY_MODIFIER_LOCATION = ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, "gravity_modifier_quicksand");
+    private static AttributeModifier GRAVITY_MODIFIER_QUICKSAND = new AttributeModifier(GRAVITY_MODIFIER_LOCATION, (double) -1.0f, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
     public PlayerCoverage coverage = new PlayerCoverage();
     public PlayerCoverage getCoverage() {
         return this.coverage;
     }
 
-    @Unique
     public void addCoverage(CoverageEntry entry) {
-
-        Player player = (Player) (Object) this;
-
         this.coverage.addCoverageEntry(entry);
-
     }
 
     public void replaceCoverage(PlayerCoverage newCoverage) {
@@ -94,8 +90,6 @@ public class PlayerMixin implements playerStruggling {
     public void BeginStruggle() {
         if (!holdingStruggle) {
             setHoldingStruggle(true);
-
-            System.out.println("Begin struggle");
 
             Player player = (Player) (Object) this;
             entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar) player;
@@ -206,7 +200,7 @@ public class PlayerMixin implements playerStruggling {
         entityQuicksandVar QuicksandVarEntity = (entityQuicksandVar) player;
         playerStruggling strugglingPlayer = (playerStruggling) player;
 
-        AttributeInstance gravity = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.GRAVITY);
+        AttributeInstance gravity = player.getAttribute(Attributes.GRAVITY);
 
         boolean inQuicksand = QuicksandVarEntity.getInQuicksand();
 

@@ -25,7 +25,7 @@ import java.util.List;
 public class ModPlacedFeatures {
     public static final ResourceKey<PlacedFeature> QUICKSAND_PIT_PLACED = registerKey("quicksand_pit_placed");
     public static final ResourceKey<PlacedFeature> MUD_PIT_PLACED = registerKey("mud_pit_placed");
-
+    public static final ResourceKey<PlacedFeature> BOG_PIT_PLACED = registerKey("bog_pit_placed");
 
     public static void bootstrap(BootstrapContext<PlacedFeature> context) {
         var configuredFeatures = context.lookup(Registries.CONFIGURED_FEATURE);
@@ -41,6 +41,16 @@ public class ModPlacedFeatures {
                 ));
 
         register(context, MUD_PIT_PLACED, configuredFeatures.getOrThrow(ModConfiguredFeatures.MUD_PIT_KEY),
+                List.of(
+                        RarityFilter.onAverageOnceEvery(2),
+                        InSquarePlacement.spread(),
+                        QuicksandPitPlacement.INSTANCE,
+                        BiomeFilter.biome(),
+                        CountPlacement.of(2),
+                        HeightmapPlacement.onHeightmap(Heightmap.Types.WORLD_SURFACE_WG)
+                ));
+
+        register(context, BOG_PIT_PLACED,configuredFeatures.getOrThrow(ModConfiguredFeatures.BOG_PIT_KEY),
                 List.of(
                         RarityFilter.onAverageOnceEvery(2),
                         InSquarePlacement.spread(),

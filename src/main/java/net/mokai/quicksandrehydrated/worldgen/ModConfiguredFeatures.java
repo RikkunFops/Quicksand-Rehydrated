@@ -25,6 +25,7 @@ import net.mokai.quicksandrehydrated.worldgen.feature.QuicksandPitFeature;
 import java.lang.module.Configuration;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 import net.minecraft.core.HolderLookup;
@@ -34,7 +35,7 @@ import net.mokai.quicksandrehydrated.worldgen.placement.QuicksandPitPlacement;
 public class ModConfiguredFeatures {
     public static final ResourceKey<ConfiguredFeature<?,?>> QUICKSAND_PIT_KEY = registerKey("quicksand_pit");
     public static final ResourceKey<ConfiguredFeature<?,?>> MUD_PIT_KEY = registerKey("mud_pit");
-
+    public static final ResourceKey<ConfiguredFeature<?,?>> BOG_PIT_KEY = registerKey("bog_pit");
 
     public static void bootstrap(BootstrapContext<ConfiguredFeature<?,?>> context) {
         HolderGetter<Feature<?>> featureLookup = context.lookup(Registries.FEATURE);
@@ -46,35 +47,56 @@ public class ModConfiguredFeatures {
 
         // Create a QuicksandPitConfiguration with desired parameters
         QuicksandPitConfiguration quicksand_config = new QuicksandPitConfiguration(
-                QuicksandRegistry.QUICKSAND.get(),      // Block type for the pit
+                QuicksandRegistry.QUICKSAND.get(),                  // Block type for the pit
                 QuicksandPitConfiguration.DEFAULT_MIN_RADIUS ,      // min radius
-                QuicksandPitConfiguration.DEFAULT_MAX_RADIUS,     // max radius
-                QuicksandPitConfiguration.DEFAULT_MIN_DEPTH,      // min depth
-                QuicksandPitConfiguration.DEFAULT_MAX_DEPTH,      // max depth
-                QuicksandPitConfiguration.DEFAULT_IRREGULARITY,   // irregularity
-                false,   // has border
-                java.util.Optional.empty(),   // border block (empty = same as pit)
-                java.util.Optional.empty(),   // replaceable blocks (empty = use default)
-                QuicksandPitConfiguration.DEFAULT_MIN_HEIGHT,     // min height
-                QuicksandPitConfiguration.DEFAULT_MAX_HEIGHT      // max height
+                QuicksandPitConfiguration.DEFAULT_MAX_RADIUS,       // max radius
+                QuicksandPitConfiguration.DEFAULT_MIN_DEPTH,        // min depth
+                QuicksandPitConfiguration.DEFAULT_MAX_DEPTH,        // max depth
+                QuicksandPitConfiguration.DEFAULT_IRREGULARITY,     // irregularity
+                false,                                              // has border
+                false,                                              // has surface
+                java.util.Optional.empty(),                         // border block (empty = same as pit)
+                java.util.Optional.empty(),                         // Block type for surface
+                java.util.Optional.empty(),                         // replaceable blocks (empty = use default)
+                QuicksandPitConfiguration.DEFAULT_MIN_HEIGHT,       // min height
+                QuicksandPitConfiguration.DEFAULT_MAX_HEIGHT        // max height
         );
 
         QuicksandPitConfiguration mud_config = new QuicksandPitConfiguration(
-                QuicksandRegistry.SHALLOW_MUD.get(),      // block
+                QuicksandRegistry.SHALLOW_MUD.get(),                // block
                 3,                                         // min radius
-                6,                                         // max radius
-                3,                                         // min depth
-                5,                                         // max depth
-                0.8f,                                      // irregularity
-                true,                                      // has border
+                6,                                                  // max radius
+                3,                                                  // min depth
+                5,                                                  // max depth
+                0.8f,                                               // irregularity
+                true,                                               // has border
+                false,
                 java.util.Optional.of(QuicksandRegistry.THIN_MUD.get()),  // border block
+                java.util.Optional.empty(),
                 java.util.Optional.of(Arrays.asList(Blocks.MUD)),         // replaceable blocks
-                62,                                        // min height
-                320                                        // max height
+                62,                                                 // min height
+                320                                                 // max height
+        );
+
+        QuicksandPitConfiguration peat_bog_config = new QuicksandPitConfiguration(
+                QuicksandRegistry.PEAT_BOG.get(),
+                QuicksandPitConfiguration.DEFAULT_MIN_RADIUS,
+                QuicksandPitConfiguration.DEFAULT_MAX_RADIUS,
+                QuicksandPitConfiguration.DEFAULT_MIN_DEPTH,
+                QuicksandPitConfiguration.DEFAULT_MAX_DEPTH,
+                QuicksandPitConfiguration.DEFAULT_IRREGULARITY,
+                false,
+                true,
+                java.util.Optional.empty(),
+                java.util.Optional.of(QuicksandRegistry.MOSSY_PEAT_BOG.get()),
+                java.util.Optional.empty(),
+                62,
+                320
         );
 
         context.register(QUICKSAND_PIT_KEY, new ConfiguredFeature<>((QuicksandPitFeature) quicksandPitFeatureHolder.value(), quicksand_config));
         context.register(MUD_PIT_KEY, new ConfiguredFeature<>((QuicksandPitFeature) quicksandPitFeatureHolder.value(), mud_config));
+        context.register(BOG_PIT_KEY, new ConfiguredFeature<>((QuicksandPitFeature) quicksandPitFeatureHolder.value(), peat_bog_config));
     }
     public static ResourceKey<ConfiguredFeature<?,?>> registerKey(String name) {
         return ResourceKey.create(Registries.CONFIGURED_FEATURE, ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, name));

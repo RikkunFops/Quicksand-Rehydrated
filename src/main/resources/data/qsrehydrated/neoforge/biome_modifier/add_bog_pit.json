@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#qsrehydrated:has_bog_pit",
+  "features": "qsrehydrated:bog_pit_placed",
+  "step": "top_layer_modification"
+}

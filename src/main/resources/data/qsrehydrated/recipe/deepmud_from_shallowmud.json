@@ -1,0 +1,10 @@
+{
+  "type": "qsrehydrated:sinking_potion_conversion",
+  "ingredient": {
+    "item": "qsrehydrated:deep_mud"
+  },
+  "result": {
+    "count": 1,
+    "id": "qsrehydrated:shallow_mud"
+  }
+}

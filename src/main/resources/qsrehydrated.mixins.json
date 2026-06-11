@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "package": "net.mokai.quicksandrehydrated.mixins",
+  "refmap" : "net.mokai.quicksandrehydrated.mixins.refmap.json",
+  "minVersion": "0",
+  "mixins":
+  [
+    "PlayerMixin",
+    "FallingBlockEntityMixin",
+    "CanOccludeMixin",
+    "SlowdownMixin",
+    "ScreenEffectRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

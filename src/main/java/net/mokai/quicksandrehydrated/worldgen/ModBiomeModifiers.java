@@ -16,15 +16,13 @@ import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.BiomeModifiers;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import static net.mokai.quicksandrehydrated.util.ModBiomeTags.*;
+
 public class ModBiomeModifiers {
     // CF -> PF -> BM
     public static final ResourceKey<BiomeModifier> ADD_QUICKSAND_PIT = registerKey("add_quicksand_pit");
     public static final ResourceKey<BiomeModifier> ADD_MUD_PIT = registerKey("add_mud_pit");
-
-    public static final TagKey<Biome> HAS_QUICKSAND_PIT = TagKey.create(
-            Registries.BIOME,
-            ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID,"has_quicksand_pit")
-    );
+    public static final ResourceKey<BiomeModifier> ADD_BOG_PIT = registerKey("add_bog_pit");
 
     public static void bootstrap(BootstrapContext<BiomeModifier> context) {
         var placedFeatures = context.lookup(Registries.PLACED_FEATURE);
@@ -36,8 +34,13 @@ public class ModBiomeModifiers {
                 GenerationStep.Decoration.TOP_LAYER_MODIFICATION
         ));
         context.register(ADD_MUD_PIT, new BiomeModifiers.AddFeaturesBiomeModifier(
-                HolderSet.direct(biomes.getOrThrow(Biomes.MANGROVE_SWAMP)),
+                biomes.getOrThrow(HAS_MUD_PIT),
                 HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.MUD_PIT_PLACED)),
+                GenerationStep.Decoration.TOP_LAYER_MODIFICATION
+        ));
+        context.register(ADD_BOG_PIT, new BiomeModifiers.AddFeaturesBiomeModifier(
+                biomes.getOrThrow(HAS_BOG_PIT),
+                HolderSet.direct(placedFeatures.getOrThrow(ModPlacedFeatures.BOG_PIT_PLACED)),
                 GenerationStep.Decoration.TOP_LAYER_MODIFICATION
         ));
     }

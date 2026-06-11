@@ -1,0 +1,22 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "L L",
+        "GLG",
+        "LBL"
+    ],
+    "key": {
+        "L": {
+            "item": "minecraft:leather"
+        },
+        "G": {
+            "item": "minecraft:glass_pane"
+        },
+        "B": {
+            "item": "minecraft:bamboo"
+        }
+    },
+    "result": {
+        "item": "qsrehydrated:snorkel"
+    }
+}

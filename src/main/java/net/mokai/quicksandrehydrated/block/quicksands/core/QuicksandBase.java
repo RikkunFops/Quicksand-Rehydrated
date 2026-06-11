@@ -1,12 +1,7 @@
 package net.mokai.quicksandrehydrated.block.quicksands.core;
 
-import java.util.Random;
-
-import org.jetbrains.annotations.NotNull;
-import static org.joml.Math.abs;
-import static org.joml.Math.clamp;
-
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -32,23 +27,50 @@ import net.mokai.quicksandrehydrated.entity.data.QuicksandEffectManager;
 import net.mokai.quicksandrehydrated.entity.entityQuicksandVar;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
 import net.mokai.quicksandrehydrated.util.EasingHandler;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Random;
+
 import static net.mokai.quicksandrehydrated.util.ModTags.Blocks.QUICKSAND_DROWNABLE;
 import static net.mokai.quicksandrehydrated.util.ModTags.Fluids.QUICKSAND_DROWNABLE_FLUID;
+import static org.joml.Math.abs;
+import static org.joml.Math.clamp;
 
+/**
+ * This is where the <font color=red>M</font>
+ * <font color=orange>A</font>
+ * <font color=yellow>G</font>
+ * <font color=green>I</font>
+ * <font color=blue>C</font> is going on!
+ * This is the base of Blocks to function as Quicksand blocks.
+ * Override the specific methods to achieve non-default behavior when implementing other
+ * sinking blocks.
+ */
 public class QuicksandBase extends Block implements QuicksandInterface {
 
-	private final Random rng = new Random();
-	
-	public QuicksandBehavior QSBehavior;
-	public QuicksandBehavior getQuicksandBehavior() {return QSBehavior;}
-	public QuicksandBase(Properties properties, QuicksandBehavior QuicksandBehavior) {
-		super(properties);
-		this.QSBehavior = QuicksandBehavior;
-	}
-	
+    private final Random rng = new Random();
+
+    public QuicksandBehavior QSBehavior;
+    public QuicksandBehavior getQuicksandBehavior() {return QSBehavior;}
+
+    public QuicksandBase(Properties pProperties, QuicksandBehavior QuicksandBehavior) {
+        super(pProperties);
+        this.QSBehavior = QuicksandBehavior;
+    }
+
+
+
+    public String getCoverageTexture() {return QSBehavior.getCoverageTexture();}
+
     public String getSecretDeathMessage() {return QSBehavior.getSecretDeathMessage();}
     public double getSecretDeathMessageChance() {return QSBehavior.getSecretDeathMessageChance();}
-    
+
+    /**
+     * The probability, per tick, of producing a bubble while an entity is in the block.
+     * @return The probability. <code>0</code> = No bubbles. <code>1</code> = Always bubbles.
+     */
+    public double getBubbleChance(double depth) {return QSBehavior.getBubbleChance(depth);}
+
     /**
      * The sinking speed, depending on the depth.
      * normalized against the vertSpeed, so this value will remain effective - even
@@ -57,7 +79,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      * @return The sinking value. Lower value means slower sinking.
      */
     public double getSinkSpeed(double depth) {return QSBehavior.getSinkSpeed(depth);}
-	
+
     /**
      * Horizontal movement speed depending on the depth.
      * Thickness - but inverse.
@@ -65,7 +87,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      * @return The inverse resistance when walking. <code>0</code> = very thick; <code>1</code> = very thin.
      */
     public double getWalkSpeed(double depth) {return QSBehavior.getWalkSpeed(depth);}
-    
+
     /**
      * Vertical movement speed depending on the depth.
      * Same as <code>getWalk()</code>
@@ -73,7 +95,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      * @return The inverse resistance when moving up/down. <code>0</code> = very thick; <code>1</code> = very thin.
      */
     public double getVertSpeed(double depth) {return QSBehavior.getVertSpeed(depth);} //TODO: invert this back
-    
+
     /** Used by position based wobble.
      * How strongly the quicksand pulls the player horizontally towards the wobble point. 1 is full strength.
      * @return Horizontal wobble strength. [0, 1]
@@ -128,7 +150,9 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      * @return Vertical tug strength. [0, 1]
      **/
     public double getWobbleApply(double depth) {return QSBehavior.getWobbleApply(depth);}
-    
+
+
+
     /** The lowest point the TugPoint will sink to.
      * @return The buoyancy depth.
      */
@@ -148,6 +172,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
      */
     public double getOffset(BlockState blockstate) {return QSBehavior.getOffset();}
 
+
     /** The depth, in blocks, that the entity has sunk. Scales based on the entity's height, but is 1:1 for a Player.
      * @return depth, in blocks.
      */
@@ -156,7 +181,12 @@ public class QuicksandBase extends Block implements QuicksandInterface {
     }
 
 
+
+
+
     public void quicksandMomentum(BlockState pState, Level pLevel, BlockPos pPos, Entity pEntity, double depth) {
+        // sub-function of sorts to applyQuicksandEffects
+        // applies the most basic of quicksand effects - slowing down walking speed, and sinking.
 
         // get quicksand Variables
         double walk = getWalkSpeed(depth);
@@ -225,8 +255,12 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         // Check if we are at the buoyancy point or beyond
         double buoyancyPoint = QSBehavior.getBuoyancyPoint();
 
+
+
         // Apply the main effects of quicksand: thickness and sinking
         quicksandMomentum(pState, pLevel, pPos, pEntity, depth);
+
+
 
         // Apply special effects
         entityQuicksandVar qsE = (entityQuicksandVar) pEntity;
@@ -248,9 +282,8 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         pEntity.resetFallDistance();
     }
 
-
     public void firstTouch(BlockPos pPos, Entity pEntity, Level pLevel) {
-//        trySetCoverage(pEntity);
+
         entityQuicksandVar es = (entityQuicksandVar) pEntity;
 
         QuicksandBehavior qb = getQuicksandBehavior();
@@ -298,30 +331,23 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         if (depth > 0) {
             if (pEntity instanceof Player) {
                 playerStruggling pS = (playerStruggling) pEntity;
+                // Calculate coverage height based on depth
 
-                double playerHeight = pEntity.getBbHeight();
 
-                // Calculate the position of the quicksand surface relative to the player's feet
-                // depth is positive when the surface is above the feet
-                // Convert the surface position to pixel coordinates (0-31 for player height)
-                double pixelsPerBlock = 31.0 / playerHeight;
-                int surfacePixel = (int)(depth * pixelsPerBlock);
-                surfacePixel = Math.min(surfacePixel, 31); // Cap at head height
 
-                // Calculate how much submerged (from surface to head)
-                double submergedHeight = playerHeight - depth;
-                if (submergedHeight < 0) submergedHeight = 0;
+                double shouldBe = depth/1.875;
+                if (shouldBe > 1.0) {shouldBe = 1.0;}
 
-                int submergedPixels = (int)(submergedHeight * pixelsPerBlock);
-                submergedPixels = Math.min(submergedPixels, 31);
+                // Convert to pixel height (0-32)
+                int pixelHeight = (int)(shouldBe * 31);
 
-                // Coverage should start from the surface position and extend to the head
-                int begin = surfacePixel;
-                int end = Math.min(surfacePixel + submergedPixels, 31);
+                if (pixelHeight <= 0) {
+                    return;
+                }
 
                 // Create a new coverage entry
                 ResourceLocation coverageTexLoc = ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, this.QSBehavior.getCoverageTex());
-                CoverageEntry entry = new CoverageEntry(begin, end, coverageTexLoc);
+                CoverageEntry entry = new CoverageEntry(0, pixelHeight, coverageTexLoc);
 
                 // Add the coverage entry to the player
                 pS.getCoverage().addCoverageEntry(entry);
@@ -363,82 +389,7 @@ public class QuicksandBase extends Block implements QuicksandInterface {
         }
     }
 
-    @Override
-    public void entityInside(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos,
-                             @NotNull Entity pEntity) {
 
-        // Optimization: Ignore bubbles to avoid unnecessary calculations
-        if (pEntity instanceof EntityBubble) {
-            return;
-        }
-
-        // Optimization: Quickly check if the entity is above the block
-        boolean isAboveBlock = pEntity.getY() > pPos.getY() + 0.9;
-
-        // Calculate depth only if necessary
-        double depth = getDepth(pLevel, pPos, pEntity);
-
-        if (depth > 0) {
-            // Set the entity as “in quicksand”
-            entityQuicksandVar es = (entityQuicksandVar) pEntity;
-            es.setInQuicksand(true);
-            pEntity.resetFallDistance();
-
-            // Only apply sinking if the entity is above quicksand
-            if (isAboveBlock) {
-                // Optimization: Calculate the sinking speed only once
-                // We slightly reduce the sinking speed for a more realistic effect.
-                double sinkSpeed = 0.04 * depth;
-
-                // Check whether the entity has reached the buoyancy point
-                double buoyancyPoint = getBuoyancyPoint();
-
-                // If the depth is greater than or equal to the buoyancy point, set the sinking speed to 0.
-                if (depth >= buoyancyPoint) {
-                    sinkSpeed = 0.0;
-
-                    // If the entity is a player and is trying to move upward, apply an upward force.
-                    if (pEntity instanceof Player) {
-                        // Check if player has upward momentum (jumping)
-                        if (pEntity.getDeltaMovement().y > 0) {
-                            // Applies upward force when the jump button is pressed
-                            double resurfingForce = QSBehavior.getResurfingForce();
-                            pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, resurfingForce, 0));
-
-                            // Add a sound effect for resurfacing (every half second)
-                            if (pLevel.getGameTime() % 10 == 0) {
-                                pLevel.playSound(null, pEntity.blockPosition(),
-                                        net.minecraft.sounds.SoundEvents.BUBBLE_COLUMN_UPWARDS_AMBIENT,
-                                        net.minecraft.sounds.SoundSource.BLOCKS,
-                                        0.4F, 0.8F + pLevel.getRandom().nextFloat() * 0.4F);
-                            }
-                        }
-                    }
-                }
-                // If we are close to the buoyancy point (within 0.3 blocks), gradually reduce speed.
-                else if (buoyancyPoint - depth < 0.3) {
-                    // Linearly reduce the sinking speed as we approach the buoyancy point.
-                    double reductionFactor = (buoyancyPoint - depth) / 0.3;
-                    sinkSpeed *= reductionFactor;
-                }
-
-                // Apply only if speed is significant
-                if (sinkSpeed > 0.001) {
-                    pEntity.setDeltaMovement(pEntity.getDeltaMovement().add(0, -sinkSpeed, 0));
-                }
-            }
-
-            // Apply coverage only for players
-//            if (pEntity instanceof Player) {
-//                tryApplyCoverage(pPos, pEntity);
-//            }
-        }
-    }
-
-
-    // @Override
-    // public void randomTick(BlockState pState, ServerLevel pLevel, BlockPos pPos,
-    // RandomSource pRandom) {}
 
     public void spawnBubble(BlockState pState, Level pLevel, Vec3 pos, BlockPos pPos, BlockState bs) {
         BlockState upOne = pLevel.getBlockState(pPos.above());

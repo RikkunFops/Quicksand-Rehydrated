@@ -36,6 +36,13 @@ public class ModCreativeModeTab {
                     .displayItems(((itemDisplayParameters, output) -> {
                         output.acceptAll(ModBlocks.setupCreativeGroups());
                     })).build());
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> QUICKSAND_ITEMS = CREATIVE_TABS.register("items", () ->
+            CreativeModeTab.builder()
+                    .title(Component.translatable("QSRH Items"))
+                    .icon(() -> ModItems.QUICKSAND_POTION.get().asItem().getDefaultInstance())
+                    .displayItems(((itemDisplayParameters, output) -> {
+                        output.acceptAll(ModItems.setupCreativeGroups());
+                    })).build());
 
 
     public static void register(IEventBus event) {

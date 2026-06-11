@@ -1,0 +1,10 @@
+{
+  "type": "qsrehydrated:sinking_potion_conversion",
+  "ingredient": {
+    "tag": "minecraft:sand"
+  },
+  "result": {
+    "count": 1,
+    "id": "qsrehydrated:quicksand"
+  }
+}

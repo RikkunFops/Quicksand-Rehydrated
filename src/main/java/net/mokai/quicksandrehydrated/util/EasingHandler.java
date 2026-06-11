@@ -44,41 +44,22 @@ public class EasingHandler {
 
 
     public static double getDepth(Entity pEntity, Level pLevel, BlockPos pPos, double offset) {
-        // Optimization: Use the entity's Y position directly instead of getPosition(1)
-        double playerY = pEntity.getY();
-        double playerHeight = pEntity.getBbHeight();
+        double playerY = pEntity.getPosition(1).y();
+        double depth;
 
-        // Calculate the surface area of the quicksand block.
-        // The surface is at block level Y + 1 (top of the block).
-        double surfaceY = pPos.getY() + 1.0 - offset;
+        BlockPos playercube;
+        double currentHeight = pPos.getY();
 
-        // Calculate the standard depth (from the feet) relative to the surface
-        double standardDepth = surfaceY - playerY;
+        do {
+            currentHeight++;
 
-        // Also calculate the depth from the head to the surface.
-        double headY = playerY + playerHeight;
-        double headDepth = surfaceY - headY;
+            BlockPos check = new BlockPos(pPos.getX(), (int) currentHeight, pPos.getZ());
+            playercube = check;
+        } while (pLevel.getBlockState(playercube).getBlock() instanceof QuicksandBase);
 
-        // If your head is below the surface, use the standard depth.
-        // Otherwise, use a formula that considers both the position of the feet and the head.
-        if (headDepth > 0) {
-            // The head is below the surface, use the standard depth
-            return standardDepth;
-        } else {
-            // The head is above the surface, calculate a proportional depth.
-            // to the part of the body that is actually submerged
+        depth = playercube.getY() - playerY - offset;
 
-            // Calculate the submerged portion more accurately
-            // This is the ratio between the part of the body below the surface and the total height.
-            double immersedHeight = Math.max(0, surfaceY - playerY);
-
-            // Ensure that the depth is proportional to the submerged part.
-            // We remove the correction that could interfere with buoyancy.
-            double correctedDepth = immersedHeight;
-
-            // Let's make sure that the depth is never negative.
-            return Math.max(0, correctedDepth);
-        }
+        return depth;
     }
 
     public static double getDepthPos(Vec3 worldPos, Level pLevel, BlockPos pPos, double offset) {

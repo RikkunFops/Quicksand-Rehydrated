@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#qsrehydrated:has_mud_pit",
+  "features": "qsrehydrated:mud_pit_placed",
+  "step": "top_layer_modification"
+}

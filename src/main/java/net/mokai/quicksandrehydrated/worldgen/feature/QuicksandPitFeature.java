@@ -41,6 +41,16 @@ public class QuicksandPitFeature extends Feature<QuicksandPitConfiguration> {
         Block pitBlock = config.block;
         BlockState pitBlockState = pitBlock.defaultBlockState();
 
+        // Set the surface block from the pit configuration.
+        Block surfaceBlock;
+        if (config.hasSurface) {
+            surfaceBlock = config.surfaceBlock;
+        }
+        else {
+            surfaceBlock = config.block;
+        }
+        BlockState surfaceBlockState = surfaceBlock.defaultBlockState();
+
         // Generate a quicksand pit with random size based on configuration
         // Use a wider range for more variable sizes
         int radius = random.nextIntBetweenInclusive(config.minRadius, config.maxRadius);
@@ -223,6 +233,8 @@ public class QuicksandPitFeature extends Feature<QuicksandPitConfiguration> {
                     // Get deep into this position
                     int localDepth = depthMap[mapX][mapZ];
 
+                    int surfaceY = findSurfaceY(level, new BlockPos(worldX, 0, worldZ));
+
                     // Verify that the height of the ground at this location is exactly equal to pitLevel.
                     // This prevents the puddle from spreading over different height levels.
                     int localSurfaceY = findSurfaceY(level, new BlockPos(worldX, 0, worldZ));
@@ -231,8 +243,13 @@ public class QuicksandPitFeature extends Feature<QuicksandPitConfiguration> {
                         continue;
                     }
 
+                    BlockPos surfacePos = new BlockPos(worldX, surfaceY, worldZ);
+
+                    // 1st Set surface block
+                    level.setBlock(surfacePos, surfaceBlockState, 3);
+
                     // Now let's place all the quicksand blocks at once, from top to bottom.
-                    for (int depth = 0; depth < localDepth; depth++) {
+                    for (int depth = 1; depth < localDepth; depth++) {
                         int worldY = pitLevel - depth;
                         BlockPos pos = new BlockPos(worldX, worldY, worldZ);
 

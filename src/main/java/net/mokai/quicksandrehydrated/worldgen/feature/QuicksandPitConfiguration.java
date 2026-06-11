@@ -10,10 +10,13 @@ import net.mokai.quicksandrehydrated.registry.QuicksandRegistry;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class QuicksandPitConfiguration implements FeatureConfiguration {
     // Default values
     public static final Block DEFAULT_BLOCK = QuicksandRegistry.QUICKSAND.get();
+    public static final boolean DEFAULT_HAS_SURFACE = true;
+    public static final Block DEFAULT_SURFACE_BLOCK = null;
     public static final int DEFAULT_MIN_RADIUS = 4;
     public static final int DEFAULT_MAX_RADIUS = 8;
     public static final int DEFAULT_MIN_DEPTH = 2;
@@ -47,8 +50,12 @@ public class QuicksandPitConfiguration implements FeatureConfiguration {
                     Codec.FLOAT.fieldOf("irregularity").orElse(DEFAULT_IRREGULARITY).forGetter(config -> config.irregularity),
                     // Whether to generate a border around the pit
                     Codec.BOOL.fieldOf("has_border").orElse(DEFAULT_HAS_BORDER).forGetter(config -> config.hasBorder),
+                    // Whether to generate a surface to the pit
+                    Codec.BOOL.fieldOf("has_surface").orElse(DEFAULT_HAS_SURFACE).forGetter(config -> config.hasSurface),
                     // Block to use for the border (defaults to same as pit if not specified)
                     BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("border_block").forGetter(config -> config.borderBlock != null ? java.util.Optional.of(config.borderBlock) : java.util.Optional.empty()),
+                    // Block to use for the surface (defaults to same as pit if not specified)
+                    BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("surface_block").forGetter(config -> config.surfaceBlock != null ? java.util.Optional.of(config.surfaceBlock) : java.util.Optional.empty()),
                     // List of blocks that can be replaced by quicksand
                     BuiltInRegistries.BLOCK.byNameCodec().listOf().optionalFieldOf("replaceable_blocks").forGetter(config -> java.util.Optional.of(config.replaceableBlocks)),
                     // Minimum height for generation
@@ -57,6 +64,7 @@ public class QuicksandPitConfiguration implements FeatureConfiguration {
                     Codec.INT.fieldOf("max_height").orElse(DEFAULT_MAX_HEIGHT).forGetter(config -> config.maxHeight)
             ).apply(instance, QuicksandPitConfiguration::new));
 
+
     public final Block block;
     public final int minRadius;
     public final int maxRadius;
@@ -64,14 +72,27 @@ public class QuicksandPitConfiguration implements FeatureConfiguration {
     public final int maxDepth;
     public final float irregularity;
     public final boolean hasBorder;
+    public final boolean hasSurface;
     public final Block borderBlock;
+    public final Block surfaceBlock;
     public final List<Block> replaceableBlocks;
     public final int minHeight;
     public final int maxHeight;
 
-    public QuicksandPitConfiguration(Block block, int minRadius, int maxRadius, int minDepth, int maxDepth,
-                                     float irregularity, boolean hasBorder, java.util.Optional<Block> borderBlock,
-                                     java.util.Optional<List<Block>> replaceableBlocks, int minHeight, int maxHeight) {
+    public QuicksandPitConfiguration(
+            Block block,
+            int minRadius,
+            int maxRadius,
+            int minDepth,
+            int maxDepth,
+            float irregularity,
+            boolean hasBorder,
+            boolean hasSurface,
+            java.util.Optional<Block> borderBlock,
+            java.util.Optional<Block> surfaceBlock,
+            java.util.Optional<List<Block>> replaceableBlocks,
+            int minHeight,
+            int maxHeight) {
         this.block = block;
         this.minRadius = minRadius;
         this.maxRadius = maxRadius;
@@ -79,7 +100,9 @@ public class QuicksandPitConfiguration implements FeatureConfiguration {
         this.maxDepth = maxDepth;
         this.irregularity = irregularity;
         this.hasBorder = hasBorder;
+        this.hasSurface = hasSurface;
         this.borderBlock = borderBlock.orElse(null);
+        this.surfaceBlock = surfaceBlock.orElse(null);
         this.replaceableBlocks = replaceableBlocks.orElse(DEFAULT_REPLACEABLE_BLOCKS);
         this.minHeight = minHeight;
         this.maxHeight = maxHeight;

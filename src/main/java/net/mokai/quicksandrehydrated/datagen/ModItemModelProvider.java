@@ -2,9 +2,6 @@ package net.mokai.quicksandrehydrated.datagen;
 
 import net.minecraft.data.PackOutput;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
-import net.mokai.quicksandrehydrated.registry.ModBlocks;
-import net.mokai.quicksandrehydrated.registry.ModItems;
-import net.mokai.quicksandrehydrated.registry.QuicksandRegistry;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -25,7 +22,7 @@ public class ModItemModelProvider extends ItemModelProvider {
     }
 
     private void simpleItem(DeferredItem<?> item) {
-        withExistingParent(item.getId().getPath(), mcLoc("item/handheld"))
-                .texture("layer0", modLoc("item/" + item.getId().getPath()));
+        withExistingParent(item.getId().getPath(), mcLoc("net/mokai/quicksandrehydrated/item/handheld"))
+                .texture("layer0", modLoc("net/mokai/quicksandrehydrated/item/" + item.getId().getPath()));
     }
 }

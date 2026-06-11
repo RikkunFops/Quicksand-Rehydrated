@@ -1,0 +1,19 @@
+{
+  "type": "qsrehydrated:quicksand_pit",
+  "config": {
+    "block": "qsrehydrated:shallow_mud",
+    "border_block": "qsrehydrated:thin_mud",
+    "has_border": true,
+    "has_surface": false,
+    "irregularity": 0.8,
+    "max_depth": 5,
+    "max_height": 320,
+    "max_radius": 6,
+    "min_depth": 3,
+    "min_height": 62,
+    "min_radius": 3,
+    "replaceable_blocks": [
+      "minecraft:mud"
+    ]
+  }
+}

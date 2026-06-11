@@ -10,6 +10,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 
@@ -34,12 +36,23 @@ public class DataGenerators {
         generator.addProvider(event.includeServer(), new LootTableProvider(output, Collections.emptySet(),
                 List.of(new LootTableProvider.SubProviderEntry(ModBlockLootTableProvider::new, LootContextParamSets.BLOCK)), lookupProvider));
 
-        generator.addProvider(event.includeServer(), new ModDatapackProvider(output, lookupProvider));
-        
+
         ModBlockTagProvider blockTagProvider = new ModBlockTagProvider(output, lookupProvider, existingFileHelper);
+        ModBiomeTagProvider biomeTagProvider = new ModBiomeTagProvider(output, lookupProvider, existingFileHelper);
+
         generator.addProvider(event.includeServer(), blockTagProvider);
+        generator.addProvider(event.includeServer(), biomeTagProvider);
+
         generator.addProvider(event.includeServer(), new ModItemTagProvider(output, lookupProvider, blockTagProvider.contentsGetter(), existingFileHelper));
-        
+        generator.addProvider(event.includeServer(), new ModRecipeProvider(output, lookupProvider));
+        generator.addProvider(event.includeServer(), new DatapackBuiltinEntriesProvider(
+                        output,
+                        lookupProvider,
+                        ModWorldGenProvider.BUILDER,
+                        Set.of(QuicksandRehydrated.MOD_ID)
+                )
+        );
+
         // Client-side data generators
         // DISABLED: ModBlockStateProvider - blockstates are hand-crafted with complex state variants
         // generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));

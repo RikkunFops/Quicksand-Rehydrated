@@ -29,7 +29,6 @@ public class PlayerCoverage {
 
         // If begin and end are the same, no need to add this entry
         if (newEntry.begin >= newEntry.end) {
-            markDirty();
             return;
         }
 
@@ -90,52 +89,29 @@ public class PlayerCoverage {
             // Case 2: The range is fully inside this entry, and must be spliced in two.
             if (endInRange && beginInRange) {
 
-                // Save the original begin and end before modifying
-                int originalBegin = entry.begin;
-                int originalEnd = entry.end;
+                // top half is entry
+                // next pixel up from range's end
+                entry.begin = end+1;
 
-                // bottom half: from originalBegin to begin-1
-                if (originalBegin <= begin-1) {
-                    CoverageEntry bottomHalf = new CoverageEntry(originalBegin, begin-1, entry.texture);
-                    entriesToAdd.add(bottomHalf);
-                }
-
-                // top half: from end+1 to originalEnd
-                if (end+1 <= originalEnd) {
-                    entry.begin = end+1;
-                    entry.end = originalEnd;
-                    shiftedEntry = true;
-                } else {
-                    // Top half would be invalid, remove the entry
-                    entriesToRemove.add(entry);
-                }
+                // bottom half
+                // next pixel down from where range begins
+                CoverageEntry newEntry = new CoverageEntry(entry.begin, begin-1, entry.texture);
+                entriesToAdd.add(newEntry);
 
             }
 
             // Case 3: The range overlaps this entry's top
             else if (endInRange) {
                 // move entry top downwards
-                int newBegin = end+1;
-                if (newBegin <= entry.end) {
-                    entry.begin = newBegin;
-                    shiftedEntry = true;
-                } else {
-                    // Entry would be invalid, remove it
-                    entriesToRemove.add(entry);
-                }
+                entry.begin = end+1; // next pixel up
+                shiftedEntry = true;
             }
 
             // Case 4: The range overlaps this entry's bottom
             else {
                 // move entry bottom upwards
-                int newEnd = begin-1;
-                if (entry.begin <= newEnd) {
-                    entry.end = newEnd;
-                    shiftedEntry = true;
-                } else {
-                    // Entry would be invalid, remove it
-                    entriesToRemove.add(entry);
-                }
+                entry.end = begin-1; // next pixel down
+                shiftedEntry = true;
             }
 
         }

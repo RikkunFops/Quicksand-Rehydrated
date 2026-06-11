@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "qsrehydrated:block/mud"
+      },
+      {
+        "model": "qsrehydrated:block/mud",
+        "y": 90
+      },
+      {
+        "model": "qsrehydrated:block/mud",
+        "y": 180
+      },
+      {
+        "model": "qsrehydrated:block/mud",
+        "y": 270
+      }
+    ]
+  }
+}

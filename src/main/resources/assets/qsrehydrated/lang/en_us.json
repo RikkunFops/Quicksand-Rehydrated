@@ -1,0 +1,151 @@
+{
+  "block.qsrehydrated.thin_mud": "Thin Mud",
+  "block.qsrehydrated.shallow_mud": "Shallow Mud",
+  "block.qsrehydrated.deep_mud": "Deep Mud",
+  "block.qsrehydrated.bottomless_mud": "Bottomless Mud",
+  "block.qsrehydrated.tidal_mud": "Tidal Mud",
+  "block.qsrehydrated.powder_snow": "Powder Snow",
+  "block.qsrehydrated.powder_ash": "Powder Ash",
+  "block.qsrehydrated.soft_quicksand":  "Soft quicksand",
+  "block.qsrehydrated.moor": "Moor",
+  "block.qsrehydrated.mire": "Mire",
+  "block.qsrehydrated.mossy_peat_bog": "Mossy Peat",
+  "block.qsrehydrated.peat_bog": "Peat",
+  "block.qsrehydrated.dry_peat": "Dried Peat",
+  "block.qsrehydrated.brown_clay": "Brown Clay",
+  "block.qsrehydrated.mineral_clay": "Mineral Clay",
+  "block.qsrehydrated.hardened_clay": "Hardened Clay",
+  "block.qsrehydrated.sinking_clay": "Sinking Clay",
+  "block.qsrehydrated.wax": "Wax",
+  "block.qsrehydrated.quicksand":  "Quicksand",
+  "block.qsrehydrated.tangleroot_moss": "Tangleroot Moss",
+  "block.qsrehydrated.dense_webbing": "Dense Webbing",
+  "block.qsrehydrated.larvae": "Larvae",
+  "block.qsrehydrated.corrupt_sand": "Corrupt Sand",
+  "block.qsrehydrated.swallowing_flesh": "Swallowing Flesh",
+  "block.qsrehydrated.soft_gravel": "Soft Gravel",
+  "block.qsrehydrated.silt_sludge": "Silt Sludge",
+
+  "block.qsrehydrated.white_quickrug": "White Quickrug",
+  "block.qsrehydrated.orange_quickrug": "Orange Quickrug",
+  "block.qsrehydrated.magenta_quickrug": "Magenta Quickrug",
+  "block.qsrehydrated.light_blue_quickrug": "Light Blue Quickrug",
+  "block.qsrehydrated.yellow_quickrug": "Yellow Quickrug",
+  "block.qsrehydrated.lime_quickrug": "Lime Quickrug",
+  "block.qsrehydrated.pink_quickrug": "Pink Quickrug",
+  "block.qsrehydrated.gray_quickrug": "Gray Quickrug",
+  "block.qsrehydrated.light_gray_quickrug": "Light Gray Quickrug",
+  "block.qsrehydrated.cyan_quickrug": "Cyan Quickrug",
+  "block.qsrehydrated.purple_quickrug": "Purple Quickrug",
+  "block.qsrehydrated.blue_quickrug": "Blue Quickrug",
+  "block.qsrehydrated.brown_quickrug": "Brown Quickrug",
+  "block.qsrehydrated.green_quickrug": "Green Quickrug",
+  "block.qsrehydrated.red_quickrug": "Red Quickrug",
+  "block.qsrehydrated.black_quickrug": "Black Quickrug",
+
+  "block.qsrehydrated.duckweed": "Duckweed",
+  "block.qsrehydrated.duckweed_flowers": "Duckweed Flowers",
+  "block.qsrehydrated.peat_bog_bush": "Moor Grass",
+  "block.qsrehydrated.fern_bush": "Fern Bush",
+  "block.qsrehydrated.muddy_branch": "Muddy Branch",
+
+  "block.qsrehydrated.bog": "Bog",
+  "item.qsrehydrated.bog_bucket": "Bog Bucket",
+  "block.qsrehydrated.dry_quicksand": "Dry Quicksand",
+  "item.qsrehydrated.dry_quicksand_bucket": "Dry Quicksand Bucket",
+  "block.qsrehydrated.red_quicksand": "Red Quicksand",
+  "item.qsrehydrated.red_quicksand_bucket": "Red Quicksand Bucket",
+  "block.qsrehydrated.jungle_quicksand": "Jungle Quicksand",
+  "item.qsrehydrated.jugngle_quicksand_bucket": "Jungle Quicksand Bucket",
+  "block.qsrehydrated.liquid_mire": "Liquid Mire",
+  "item.qsrehydrated.liquid_mire_bucket": "Mire Bucket",
+  "block.qsrehydrated.living_slime": "Living Slime",
+  "item.qsrehydrated.sinking_slime_bucket": "Sinking Slime Bucket",
+  "block.qsrehydrated.mucus": "Mucus",
+  "item.qsrehydrated.mucus_bucket": "Mucus Bucket",
+  "block.qsrehydrated.tar": "Tar",
+  "item.qsrehydrated.tar_bucket": "Tar Bucket",
+  "block.qsrehydrated.acid": "Acid",
+  "item.qsrehydrated.acid_bucket": "Acid Bucket",
+  "block.qsrehydrated.liquid_honey": "Liquid Honey",
+  "item.qsrehydrated.liquid_honey_bucket": "Liquid Honey Bucket",
+  "block.qsrehydrated.liquid_chocolate": "Liquid Chocolate",
+  "item.qsrehydrated.liquid_chocolate_bucket": "Liquid Chocolate Bucket",
+
+  "block.qsrehydrated.chocolate": "Chocolate Block",
+  "block.qsrehydrated.honeycomb": "Populated Honeycomb",
+  "block.qsrehydrated.rafflesia_flesh": "Rafflesia Flower",
+  "block.qsrehydrated.rafflesia_wall": "Rafflesia Wall",
+  "block.qsrehydrated.wax_drip": "Wax Drip",
+  "block.qsrehydrated.dead_lieaves": "Dead Leaves",
+  "block.qsrehydrated.cattails": "Cattail Reeds",
+  "block.qsrehydrated.cranberry_bush": "Cranberry Bush",
+
+
+  "block.qsrehydrated.mixer": "Mess Mixer",
+
+
+  "item.qsrehydrated.cranberries": "Cranberries",
+  "item.qsrehydrated.larva_food": "Larva",
+  "item.qsrehydrated.cooked_larva_food": "Cooked Larva",
+  "item.qsrehydrated.long_stick": "Walking Stick",
+  "item.qsrehydrated.rope": "Rope",
+  "item.qsrehydrated.quicksand_book": "Quicksand Tome",
+  "item.qsrehydrated.heavy_charm": "Heavy Charm",
+  "item.qsrehydrated.light_charm": "Light Charm",
+
+  "item.qsrehydrated.music_disc_flight": "Music Disc",
+  "item.qsrehydrated.music_disc_flight.desc": "Rimsky-Korsakov - Flight of the Bumblebee",
+  "item.qsrehydrated.hunnibee_spawn_egg": "Hunnibee Spawn Egg",
+  "item.qsrehydrated.cave_blob_spawn_egg": "Cave Blob Spawn Egg",
+  "item.qsrehydrated.tar_golem_spawn_egg": "Tar Golem Spawn Egg",
+  "item.qsrehydrated.bog_golem_spawn_egg": "Bog Golem Spawn Egg",
+
+  "item.qsrehydrated.potion_of_sinking.effect.water": "Potion of Sinking",
+  "item.qsrehydrated.splash_potion_of_sinking.effect.water": "Splash Potion of Sinking",
+
+
+
+
+  "entity.minecraft.villager.qsrehydrated.mudologer" : "Edaphologer",
+
+  "itemGroup.quicksand_tab": "Quicksand Reloaded",
+
+  "key.category.qsrehydrated.tab": "Quicksand Rehydrated",
+
+  "creativetab.qsrehydrated.quicksand_items_tab": "Quicksand Rehydrated: Items",
+  "creativetab.qsrehydrated.quicksand_messes_tab": "Quicksand Rehydrated: Messes",
+
+  "key.category.quicksandrehydrated.quicksand": "Quicksand Rehydrated",
+  "key.category.quicksandrehydrated.struggle": "Struggle",
+
+
+
+  "biome.qsrehydrated.mud_flat": "Mudflat",
+
+
+
+  "death.attack.qsrehydrated_hardcore": "%1$s forgot their Phoenix feather",
+
+  "death.attack.qsrehydrated_generic_0": "%1$s vanished in soft, sucking terrain",
+  "death.attack.qsrehydrated_generic_1": "%1$s didn't watch their step",
+  "death.attack.qsrehydrated_generic_2": "%1$s was swallowed by quicksand",
+
+  "death.attack.qsrehydrated_quicksand": "%1$s disappeared in innocent-looking quicksand",
+  "death.attack.qsrehydrated_soft_quicksand": "%1$s was smothered by soft quicksand",
+
+  "death.attack.qsrehydrated_dry_quicksand": "%1$s vanished in a soft, fine sand",
+
+  "death.attack.qsrehydrated_moor": "%1$s mistook the moor for solid ground",
+  "death.attack.qsrehydrated_tar": "%1$s will make for a fine fossil",
+
+  "death.attack.qsrehydrated_flesh": "%1$s was swallowed by tentacles",
+  "death.attack.qsrehydrated_soulsand": "%1$s felt the corrupting influence of the soul sand",
+  "death.attack.qsrehydrated_acid": "%1$s was melted and digested",
+
+  "death.attack.qsrehydrated_chocolate": "%1$s become chocolate fondue",
+  "death.attack.qsrehydrated_marshmallow": "%1$s was smothered in marshmallow fluff",
+  "death.attack.qsrehydrated_sugar": "%1$s tasted the rainbow",
+  "death.attack.qsrehydrated_candy": "%1$s was candied",
+  "death.attack.qsrehydrated_generic_candy": "%1$s met their sweet demise in candy goo"
+}

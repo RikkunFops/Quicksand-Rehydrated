@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#qsrehydrated:has_quicksand_pit",
+  "features": "qsrehydrated:quicksand_pit_placed",
+  "step": "top_layer_modification"
+}

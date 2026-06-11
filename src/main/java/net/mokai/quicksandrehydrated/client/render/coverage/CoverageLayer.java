@@ -1,13 +1,8 @@
 package net.mokai.quicksandrehydrated.client.render.coverage;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -18,28 +13,35 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.FastColor;
 import net.mokai.quicksandrehydrated.QuicksandRehydrated;
 import net.mokai.quicksandrehydrated.entity.coverage.CoverageEntry;
 import net.mokai.quicksandrehydrated.entity.coverage.PlayerCoverage;
 import net.mokai.quicksandrehydrated.entity.playerStruggling;
 import net.mokai.quicksandrehydrated.registry.ModModelLayers;
-import net.mokai.quicksandrehydrated.client.render.ModRenderTypes;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import java.awt.*;
 
 public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> {
 
     PlayerCoverageDefaultModel coverageModel;
     private final DynamicTexture texture;
+    private final DynamicTexture splatterTexture;
     TextureManager textureManager;
     ResourceLocation resourcelocation;
-    private boolean playerSlim;
+    ResourceLocation splatterResourceLocation;
+
+    private static final float EDGE_ROUGHNESS = 0.15F;
+    private static final int DEPTH_SHIFT_Y = 2;
+
     public CoverageLayer(RenderLayerParent<AbstractClientPlayer, PlayerModel<AbstractClientPlayer>> pRenderer, boolean pSlim) {
         super(pRenderer);
-        playerSlim = pSlim;
         EntityModelSet modelSet = Minecraft.getInstance().getEntityModels();
         if (!pSlim) {
             this.coverageModel = new PlayerCoverageDefaultModel(modelSet.bakeLayer(ModModelLayers.COVERAGE_LAYER_DEFAULT));
@@ -48,122 +50,162 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
         }
 
         this.texture = new DynamicTexture(64, 64, true);
+        this.splatterTexture = new DynamicTexture(64,64,true);
         this.textureManager = Minecraft.getInstance().getTextureManager();
         this.resourcelocation = Minecraft.getInstance().getTextureManager().register("coverage", this.texture);
-        
-
+        this.splatterResourceLocation = Minecraft.getInstance().getTextureManager().register("coverage_splatter", this.splatterTexture);
     }
 
-    private void updateTexture(PlayerCoverage cov) {
-        System.out.println(playerSlim);
-
-        // Improved version that tries to be more efficient
-        NativeImage img = this.texture.getPixels();
-
-        // Clear the texture to transparent
-        for (int i = 0; i < 64; ++i) {
-            for (int k = 0; k < 64; ++k) {
-                img.setPixelRGBA(i, k, 0);
-            }
-        }
-
-        int entry_count = cov.coverageEntries.size();
-        if (entry_count == 0) {
-            this.texture.upload();
+    private void extendPixelUp(NativeImage img, TextureAtlasSprite depthMask, TextureAtlasSprite[] coverageByPixel, int x, int y, int sourceDepthIndexRaw, int color) {
+        if (y < DEPTH_SHIFT_Y) {
             return;
         }
-
-        // Cache the alpha texture since it's used for all entries
-        TextureAtlasSprite alphaTex;
-        try {
-            alphaTex = CoverageAtlasHolder.singleton.get(
-                ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, "coverage_mask"));
-        } catch (Exception e) {
-            // Fallback to a different texture if coverage_mask is not found
-            System.out.println("Coverage mask texture not found, using fallback");
-            alphaTex = CoverageAtlasHolder.singleton.get(
-                ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, "quicksand_coverage"));
+        int targetY = y - DEPTH_SHIFT_Y;
+        int targetDepthIndex = computeDepthIndexRaw(depthMask, x, targetY);
+        if (coverageByPixel[targetDepthIndex] != coverageByPixel[sourceDepthIndexRaw]) {
+            return;
         }
-        
-        // Pre-calculate alpha values for the mask to avoid recalculating for each entry
-        float[][] alphaValues = new float[64][64];
+        int existing = img.getPixelRGBA(x, targetY);
+        if (FastColor.ARGB32.alpha(existing) == 0) {
+            img.setPixelRGBA(x, targetY, color);
+        }
+    }
+    private int computeDepthIndexRaw(TextureAtlasSprite depthMask, int x, int y) {
+        int depthRGBA = depthMask.getPixelRGBA(0, x, y);
+        float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
+        int depthIndex = (int) (depthFloat * 31.0F);
+        return Math.max(0, Math.min(31, depthIndex));
+    }
+
+    private int computeDepthIndex(TextureAtlasSprite depthMask, int x, int y) {
+        int depthRGBA = depthMask.getPixelRGBA(0, x, y);
+        float depthFloat = (float) FastColor.ARGB32.alpha(depthRGBA) / 255.0F;
+
+        int hash = (x * 73428767) ^ (y * 912783);
+        float jitter = (((hash >>> 10) & 255) / 255.0F - 0.5F) * EDGE_ROUGHNESS;
+        depthFloat = Math.max(0.0F, Math.min(1.0F, depthFloat + jitter));
+
+        int depthIndex = (int) (depthFloat * 31.0F);
+        return Math.max(0, Math.min(31, depthIndex));
+    }
+
+    private TextureAtlasSprite[] buildCoverageByPixel(PlayerCoverage coverage) {
+        // Step one: make array with 32 values.
+        // Each value points to a TextureAtlasSprite,
+        // which is the texture that should be applied at that depth.
+        TextureAtlasSprite[] coverageByPixel = new TextureAtlasSprite[32];
+
+        for (CoverageEntry entry : coverage.coverageEntries) {
+            // both begin and end are inclusive
+            for (int i = entry.begin; i <= entry.end; i++) {
+
+                try {
+                    coverageByPixel[i] = CoverageAtlasHolder.singleton.get(entry.texture);
+                } catch (Exception e) {
+                    // If texture can't be loaded, skip this entry (draws empty)
+                    continue;
+                }
+
+            }
+        }
+
+        return coverageByPixel;
+    }
+
+    private void updateTexture(PlayerCoverage coverage) {
+
+        TextureAtlasSprite[] coverageByPixel = buildCoverageByPixel(coverage);
+
+        // Step two: go through every pixel and determine its depth
+        // get the texture that should be applied at that depth.
+        // if there is no texture to be applied, it sets to the pixel to 0 alpha
+
+        TextureAtlasSprite depthMask = CoverageAtlasHolder.singleton.get(ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, "coverage_mask"));
+        NativeImage img = this.texture.getPixels();
+
+        if (img == null) return;
+
         for (int i = 0; i < 64; ++i) {
             for (int k = 0; k < 64; ++k) {
-                int alpha_rgba = alphaTex.getPixelRGBA(0, i, k);
-                alphaValues[i][k] = (float) FastColor.ARGB32.alpha(alpha_rgba) / 255.0F;
-            }
-        }
 
-        // Sort entries by begin value to ensure proper layering
-        // This ensures entries with lower begin values (covering more of the player) are processed first
-        List<CoverageEntry> sortedEntries = new ArrayList<>(cov.coverageEntries);
-        sortedEntries.sort((a, b) -> Integer.compare(a.begin, b.begin));
+                int depthIndex = computeDepthIndex(depthMask, i, k);
+                int depthIndexRaw = computeDepthIndexRaw(depthMask, i, k);
 
-        // Process entries from bottom to top for proper layering
-        for (int c = sortedEntries.size() - 1; c >= 0; --c) {
-            CoverageEntry entry = sortedEntries.get(c);
+                // get the texture that should be here
+                TextureAtlasSprite coverageTexture = coverageByPixel[depthIndex];
 
-            // Skip invalid entries
-            if (entry.begin >= entry.end || entry.begin < -1 || entry.end > 32) {
-                continue;
-            }
-
-            // We calculate coverage limits more precisely to align them with the block surface.
-            // We are removing the offsets that were causing buoyancy issues.
-            double bot = 1.0 - (entry.end/31.0); // Negative offset removed
-            double top = 1.0 - (entry.begin/31.0); // Positive offset removed
-
-            // Get the texture for this coverage
-            TextureAtlasSprite colorTex;
-            try {
-                colorTex = CoverageAtlasHolder.singleton.get(entry.texture);
-            } catch (Exception e) {
-                // If texture can't be loaded, skip this entry
-                continue;
-            }
-
-            // Process the entire texture to ensure all parts including second layers are covered
-            for (int i = 0; i < 64; ++i) {
-                for (int k = 0; k < 64; ++k) {
-                    float A = alphaValues[i][k];
-                    
-                    // If the alpha of this pixel is within the bounds, use the pixel from the coverage texture
-                    // Use the original bounds calculation with added tolerance to avoid flickering
-                    if (A <= top + (1.0f/31.0f) + 0.001f && A >= bot - 0.001f) {
-                        int color_rgba = colorTex.getPixelRGBA(0, i, k);
-                        
-                        // We obtain the original opacity
-                        int alpha = FastColor.ARGB32.alpha(color_rgba);
-                        
-                        // Only set the pixel if it has some opacity
-                        if (alpha > 0) {
-                            img.setPixelRGBA(i, k, color_rgba);
-                        }
-                    }
+                // do not do anything if its null
+                if (coverageTexture == null)  {
+                    int emptyColor = FastColor.ARGB32.color(0, 0, 0, 0);
+                    img.setPixelRGBA(i, k, emptyColor);
+                    continue;
                 }
+
+                // get color, and set color
+                int color_rgba = coverageTexture.getPixelRGBA(0, i, k);
+                img.setPixelRGBA(i, k, color_rgba);
+                extendPixelUp(img, depthMask, coverageByPixel, i, k, depthIndexRaw, color_rgba);
+
             }
         }
 
         this.texture.upload();
 
-/*
-        if (!sortedEntries.isEmpty()) {
-            System.out.println("Coverage entries: " + sortedEntries.size());
-            for (CoverageEntry entry : sortedEntries) {
-                System.out.println("Entry: begin=" + entry.begin + ", end=" + entry.end +
-                                  ", texture=" + entry.texture +
-                                  ", bot=" + (1.0 - (entry.end/32.0) - 0.001) +
-                                  ", top=" + (1.0 - (entry.begin/32.0) + 0.001));
-            }
-        }
-*/
     }
 
+    private void updateSplatterTexture(PlayerCoverage coverage) {
+        TextureAtlasSprite[] coverageByPixel = buildCoverageByPixel(coverage);
+        TextureAtlasSprite depthMask = CoverageAtlasHolder.singleton.get(ResourceLocation.fromNamespaceAndPath(QuicksandRehydrated.MOD_ID, "coverage_mask"));
+        NativeImage img = this.splatterTexture.getPixels();
+
+        if (img == null) return;
+
+        for (int i = 0; i < 64; ++i) {
+            for (int k = 0; k < 64; ++k) {
+                int depthIndex = computeDepthIndex(depthMask, i, k);
+                int depthIndexRaw = computeDepthIndexRaw(depthMask, i, k);
+                TextureAtlasSprite coverageTexture = coverageByPixel[depthIndex];
+
+                if (coverageTexture == null)  {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int baseColor = coverageTexture.getPixelRGBA(0, i, k);
+                int baseAlpha = FastColor.ARGB32.alpha(baseColor);
+                if (baseAlpha == 0) {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int hash = (i * 73428767) ^ (k * 912783) ^ (depthIndex * 12043);
+                float noise = ((hash >>> 8) & 255) / 255.0F;
+                float splat = Math.max(0.0F, (noise - 0.70F) / 0.30F);
+                int outAlpha = (int) (baseAlpha * splat * 0.85F);
+
+                if (outAlpha <= 0) {
+                    img.setPixelRGBA(i, k, FastColor.ARGB32.color(0, 0, 0, 0));
+                    continue;
+                }
+
+                int outColor = FastColor.ARGB32.color(
+                        outAlpha,
+                        FastColor.ARGB32.red(baseColor),
+                        FastColor.ARGB32.green(baseColor),
+                        FastColor.ARGB32.blue(baseColor)
+                );
+                img.setPixelRGBA(i, k, outColor);
+                extendPixelUp(img, depthMask, coverageByPixel, i, k, depthIndexRaw, outColor);
+            }
+        }
+
+        this.splatterTexture.upload();
+    }
 //    private void copyYLayer(Resource, int yLayer)
 
     public void render(PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, AbstractClientPlayer pAbstractPlayer, float pLimbSwing, float pLimbSwingAmount, float pPartialTick, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         try {
-            playerStruggling playerqs = (playerStruggling)pAbstractPlayer;
+            playerStruggling playerqs = (playerStruggling) pAbstractPlayer;
 
             // Check if player has coverage
             PlayerCoverage pC = playerqs.getCoverage();
@@ -175,6 +217,7 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             if (pC.renderUpdate) {
                 pC.renderUpdate = false;
                 this.updateTexture(pC);
+                this.updateSplatterTexture(pC);
             }
 
             // Get the appropriate model
@@ -195,29 +238,33 @@ public class CoverageLayer extends RenderLayer<AbstractClientPlayer, PlayerModel
             model.head.visible = true;
 
             // Use a translucent render type for better blending
-            ResourceLocation playerSkinTexture = pAbstractPlayer.getSkin().texture();
-            VertexConsumer vertexconsumer = pBuffer.getBuffer(ModRenderTypes.coverage(playerSkinTexture, this.resourcelocation));
+            VertexConsumer vertexconsumer = pBuffer.getBuffer(RenderType.entityTranslucentCull(this.resourcelocation));
 
             // Render the coverage with full opacity
             model.renderToBuffer(pPoseStack, vertexconsumer, pPackedLight,
                     LivingEntityRenderer.getOverlayCoords(pAbstractPlayer, 0.0F),
                     1.0F, 1.0F, 1.0F, 1.0F);
 
+            VertexConsumer splatterConsumer = pBuffer.getBuffer(RenderType.entityTranslucentCull(this.splatterResourceLocation));
+            model.renderToBuffer(pPoseStack, splatterConsumer, pPackedLight,
+                    LivingEntityRenderer.getOverlayCoords(pAbstractPlayer, 0.0F),
+                    1.0F, 1.0F, 1.0F, 1.0F);
+
+            // Debug: uncomment to print information about the coverage
+            /*
             if (!pC.coverageEntries.isEmpty()) {
                 System.out.println("Rendering coverage for player: " + pAbstractPlayer.getName().getString());
                 System.out.println("Coverage entries: " + pC.coverageEntries.size());
                 for (CoverageEntry entry : pC.coverageEntries) {
                     System.out.println("Entry: begin=" + entry.begin + ", end=" + entry.end +
-                            ", texture=" + entry.texture);
+                                      ", texture=" + entry.texture);
                 }
-
             }
-
-
+            */
         } catch (Exception e) {
             // Silently catch any exceptions to prevent rendering crashes
+            // In a production environment, you might want to log this
             // e.printStackTrace(); // Uncomment for debugging
         }
     }
-
 }

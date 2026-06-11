@@ -1,0 +1,32 @@
+{
+  "replace": false,
+  "values": [
+    "qsrehydrated:quicksand",
+    "qsrehydrated:living_slime",
+    "qsrehydrated:soft_quicksand",
+    "qsrehydrated:bog",
+    "qsrehydrated:peat_bog",
+    "qsrehydrated:mossy_peat_bog",
+    "qsrehydrated:thin_mud",
+    "qsrehydrated:shallow_mud",
+    "qsrehydrated:deep_mud",
+    "qsrehydrated:bottomless_mud",
+    "qsrehydrated:tidal_mud",
+    "qsrehydrated:black_quickrug",
+    "qsrehydrated:blue_quickrug",
+    "qsrehydrated:brown_quickrug",
+    "qsrehydrated:cyan_quickrug",
+    "qsrehydrated:gray_quickrug",
+    "qsrehydrated:green_quickrug",
+    "qsrehydrated:light_blue_quickrug",
+    "qsrehydrated:light_gray_quickrug",
+    "qsrehydrated:lime_quickrug",
+    "qsrehydrated:magenta_quickrug",
+    "qsrehydrated:orange_quickrug",
+    "qsrehydrated:pink_quickrug",
+    "qsrehydrated:purple_quickrug",
+    "qsrehydrated:red_quickrug",
+    "qsrehydrated:white_quickrug",
+    "qsrehydrated:yellow_quickrug"
+  ]
+}

@@ -1,0 +1,8 @@
+// 1.21.1	2026-06-11T00:07:50.4967193	Tags for minecraft:block mod id qsrehydrated
+daae9e0f384557b41b169f7011889341c28bac24 data/minecraft/tags/block/mineable/shovel.json
+ab1a3b357986eea0082813ae2326ac268930c513 data/minecraft/tags/block/wool.json
+6a26aaffbca5a6804d1cbe2b3bbd963bb3c08ae2 data/qsrehydrated/tags/block/duckweed.json
+009a25d24b8a90728b079f2e655882a90891a717 data/qsrehydrated/tags/block/fern_bush.json
+4f995bda45614a40e4cee2bc10f9459dfc2e5b8f data/qsrehydrated/tags/block/peat_bog_bush.json
+77f1a6b8e456417ac653e18d796da712ce5785dd data/qsrehydrated/tags/block/quicksand_ao_override.json
+6cbc642c208ff4cb6847de9432855bfd4efc2c12 data/qsrehydrated/tags/block/quicksand_drownable.json

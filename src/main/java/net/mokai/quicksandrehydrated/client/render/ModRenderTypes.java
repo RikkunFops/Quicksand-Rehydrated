@@ -69,7 +69,7 @@ public class ModRenderTypes
                     .setLightmapState(LIGHTMAP)
                     .setOverlayState(OVERLAY)
                     .createCompositeState(true);
-            return create((QuicksandRehydrated.MOD_ID+":qsrehydrated_coverage"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, rendertype$compositestate);
+            return create((QuicksandRehydrated.MOD_ID+"_coverage"), DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, rendertype$compositestate);
 
 
 
